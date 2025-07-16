@@ -4,13 +4,14 @@ This module provides functionality to load files from a specified path.
 '''
 
 import os
+from typing import Union, List
 from ROOT import TFile
 
 class FileLoader:
     """
     FileLoader class to handle loading ROOT files from a specified path.
     """
-    def __init__(self, path, **kwargs):
+    def __init__(self, path: Union[str, List[str]], **kwargs):
         """
         Initializes the FileLoader with a path or list of paths to ROOT files.
 
