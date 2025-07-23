@@ -1,0 +1,179 @@
+Data:
+  operations: 
+    name: [
+      # 'df_merge',
+      # 'table_merge',
+      # 'prepare_samples_pt',
+      'file_merge_pt',
+    ]
+    maxWorkers: [
+      # 20,
+      # 10,
+      5,
+    ]
+
+  inputFiles: [
+    '/data/meta/BDT/DataPass4_MCPass4/Data/449102'
+  ]
+  outputPath: /data/meta/BDT/DataPass4_MCPass4/samples
+  outputFileName: AO2D.root
+
+  prepare_samples:
+    treeName: 'TreeForML'
+    # ptMins: [0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 16]
+    # ptMaxs: [1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 16, 24]
+    ptMins: [10, 12, 16]
+    ptMaxs: [12, 16, 24]
+    # low_edges: [ 1.78, 1.78, 1.77, 1.76,1.77, 1.76, 1.75, 1.74, 1.73, 1.73, 1.73, 1.72]
+    # ll_edges: [  1.70, 1.70, 1.68, 1.66,1.66, 1.65, 1.65, 1.65, 1.65, 1.65, 1.65, 1.65]
+    # high_edges: [1.92, 1.93, 1.94, 1.95,1.96, 1.96, 1.96, 1.96, 1.96, 1.98, 1.98, 1.98]
+    # hh_edges: [  2.00, 2.02, 2.03, 2.05,2.07, 2.12, 2.12, 2.12, 2.12, 2.15, 2.15, 2.15]
+    low_edges: [ 1.72, 1.73, 1.73]
+    ll_edges: [  1.65, 1.65, 1.65]
+    high_edges: [1.97, 1.98, 1.98]
+    hh_edges: [  2.15, 2.15, 2.15]
+    data_filters: [
+      'fY > -0.8 && fY < 0.8',
+      'fNSigTpcTofPiExpPi < 3 && fNSigTpcTofKaExpKa < 3',
+      'fCpa > 0.9'
+    ]
+    data_snapshot: [
+      # "fChi2PCA",
+      "fCpa",
+      "fCpaXY",
+      "fDecayLength",
+      # "fDecayLengthNormalised",
+      "fDecayLengthXY",
+      # "fDecayLengthXYNormalised",
+      # "fPtProng0",
+      # "fPtProng1",
+      # "fImpactParameter0",
+      # "fImpactParameter1",
+      # "fImpactParameterNormalised0",
+      # "fImpactParameterNormalised1",
+      "fImpactParameterProduct",
+      # "fNSigTpcPiExpPi",
+      # "fNSigTpcKaExpKa",
+      # "fNSigTofPiExpPi",
+      # "fNSigTofKaExpKa",
+      "fNSigTpcTofPiExpPi",
+      "fNSigTpcTofKaExpKa",
+      # "fCosThetaStar",
+      # "fCt",
+      "fM", 
+      "fPt", 
+      # "fY", 
+      "fCandidateSelFlag"
+    ]
+  file_merge:
+    ptMins: [10, 12, 16]
+    ptMaxs: [12, 16, 24]
+    
+
+MC:
+  operations: 
+    name: [
+      'df_merge',
+      'table_merge',
+      'prepare_samples_pt',
+      # 'file_merge_pt',
+    ]
+    maxWorkers: [
+      # 20,
+      # 10,
+      5,
+    ]
+
+  inputFiles: [
+    '/data/meta/BDT/DataPass4_MCPass4/AO2D_MC_448574_0_5.root',
+  ]
+  outputPath: /data/meta/BDT/DataPass4_MCPass4/samples
+  outputFileName: AO2D.root
+
+  prepare_samples:
+    treeName: 'TreeForML'
+    ptMins: [0, 1, 2, 3, 4] #, 5, 6, 7, 8, 10, 12, 16]
+    ptMaxs: [1, 2, 3, 4, 5] #, 6, 7, 8, 10, 12, 16, 24]
+    # low_edges: [ ]
+    ll_edges: [  1.65, 1.65, 1.65, 1.65, 1.65] #, 1.65, 1.65, 1.65, 1.65, 1.65, 1.65, 1.65]
+    # high_edges: []
+    hh_edges: [  2.15, 2.15, 2.15, 2.15, 2.15] #, 2.15, 2.15, 2.15, 2.15, 2.15, 2.15, 2.15]
+    mc_prompt_filters: [
+      'fOriginMcRec==1',
+      '(fCandidateSelFlag == 1 && fFlagMcMatchRec == 1 || fCandidateSelFlag == 2 && fFlagMcMatchRec == -1)',
+      'fNSigTpcTofPiExpPi < 3 && fNSigTpcTofKaExpKa < 3',
+      'fY > -0.8 && fY < 0.8',
+      'fM > 1.65 && fM < 2.15',
+      'fCpa > 0.9'
+    ]
+
+    mc_fd_filters: [
+      'fOriginMcRec==2',
+      '(fCandidateSelFlag == 1 && fFlagMcMatchRec == 1 || fCandidateSelFlag == 2 && fFlagMcMatchRec == -1)',
+      'fNSigTpcTofPiExpPi < 3 && fNSigTpcTofKaExpKa < 3',
+      'fY > -0.8 && fY < 0.8',
+      'fM > 1.65 && fM < 2.15',
+      'fCpa > 0.9'
+    ]
+
+    mc_prompt_snapshot: [
+      # "fChi2PCA",
+      "fCpa",
+      "fCpaXY",
+      "fDecayLength",
+      # "fDecayLengthNormalised",
+      "fDecayLengthXY",
+      # "fDecayLengthXYNormalised",
+      # "fPtProng0",
+      # "fPtProng1",
+      # "fImpactParameter0",
+      # "fImpactParameter1",
+      # "fImpactParameterNormalised0",
+      # "fImpactParameterNormalised1",
+      "fImpactParameterProduct",
+      # "fNSigTpcPiExpPi",
+      # "fNSigTpcKaExpKa",
+      # "fNSigTofPiExpPi",
+      # "fNSigTofKaExpKa",
+      "fNSigTpcTofPiExpPi",
+      "fNSigTpcTofKaExpKa",
+      # "fCosThetaStar",
+      # "fCt",
+      "fM", 
+      "fPt", 
+      "fY", 
+      "fFlagMcMatchRec", 
+      "fOriginMcRec", 
+      "fCandidateSelFlag"
+    ]
+    mc_fd_snapshot: [
+        # "fChi2PCA",
+        "fCpa",
+        "fCpaXY",
+        "fDecayLength",
+        # "fDecayLengthNormalised",
+        "fDecayLengthXY",
+        # "fDecayLengthXYNormalised",
+        # "fPtProng0",
+        # "fPtProng1",
+        # "fImpactParameter0",
+        # "fImpactParameter1",
+        # "fImpactParameterNormalised0",
+        # "fImpactParameterNormalised1",
+        "fImpactParameterProduct",
+        # "fNSigTpcPiExpPi",
+        # "fNSigTpcKaExpKa",
+        # "fNSigTofPiExpPi",
+        # "fNSigTofKaExpKa",
+        "fNSigTpcTofPiExpPi",
+        "fNSigTpcTofKaExpKa",
+        # "fCosThetaStar",
+        # "fCt",
+        "fM", 
+        "fPt", 
+        "fY", 
+        "fFlagMcMatchRec", 
+        "fOriginMcRec", 
+        "fCandidateSelFlag"
+    ]
+

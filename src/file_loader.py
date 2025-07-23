@@ -22,24 +22,38 @@ class FileLoader:
                 - keyFileName (str): Optional keyword to filter files by name.
         """
         keyFileName = kwargs.get('keyFileName', None)
-        self.paths = []
+        filetype = kwargs.get('filetype', '.root')
+
         self.keyFileName = keyFileName
+        self.filetype = filetype
+        self.raw_paths = path
+        self.paths = self._get_paths()
 
-        if isinstance(path, str):
-            self.paths = [path]
-        elif isinstance(path, list):
-            self.paths = path
-        else:
-            raise ValueError("Unsupported type for path. Expected str or list of str.")
-    
+    def _get_paths(self) -> List[str]:
+        """
+        Retrieves the paths of ROOT/{filetype} files from the specified path(s).
+        """
+        paths = []
+        if not isinstance(self.raw_paths, list):
+            self.raw_paths = [self.raw_paths]
 
-    def get_files(self):
-        self.files = []
-        for p in self.paths:
-            if isinstance(p, str) and p.endswith('.root'):
-                self.files.append(TFile(p, 'READ'))
+        for p in self.raw_paths:
+            if isinstance(p, str) and p.endswith(self.filetype):
+                paths.append(p)
             elif isinstance(p, str) and os.path.isdir(p):
                 for root, _, files in os.walk(p):
-                    for file in files:
-                        if file.endswith('.root') and (self.keyFileName is None or self.keyFileName in file):
-                            self.files.append(TFile(os.path.join(root, file), 'READ'))
+                    for f in files:
+                        if f.endswith(self.filetype) and (self.keyFileName is None or self.keyFileName in f):
+                            paths.append(os.path.join(root, f))
+        return paths
+
+    def get_files(self) -> List[TFile]:
+        """
+        Retrieves the opened ROOT files.
+        """
+        self.files = []
+        for path in self.paths:
+            if os.path.exists(path) and path.endswith('.root'):
+                self.files.append(TFile(path, 'READ'))
+            else:
+                raise FileNotFoundError(f"File {path} does not exist or is not a valid ROOT file.")
