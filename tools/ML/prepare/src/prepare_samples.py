@@ -98,10 +98,21 @@ def process(config_sample, data=False, mc=False):
         elif operator == "file_merge_pt":
             os.makedirs(f"{config.get('outputPath')}", exist_ok=True)
             for ptMin, ptMax in zip(config.get("file_merge").get("ptMins"), config.get("file_merge").get("ptMaxs")):
-                preparedFiles = sorted(FileLoader(config.get("inputFiles"), keyFileName=f'_{ptMin}_{ptMax}.root').paths)
-                outputFile = os.path.join(config.get("outputPath"), f'DataTreeForMLTrain_{ptMin}_{ptMax}.root')
-                command = f"hadd -f -k -j 16 -n 2 {outputFile} " + " ".join(preparedFiles)
-                os.system(command)
+                if data:
+                    preparedFiles = sorted(FileLoader(config.get("inputFiles"), keyFileName=f'_{ptMin}_{ptMax}.root').paths)
+                    outputFile = os.path.join(config.get("outputPath"), f'DataTreeForMLTrain_{ptMin}_{ptMax}.root')
+                    command = f"hadd -f -k -j 16 -n 2 {outputFile} " + " ".join(preparedFiles)
+                    os.system(command)
+                if mc:
+                    preparedFiles = sorted(FileLoader(config.get("inputFiles"), keyFileName=f'_{ptMin}_{ptMax}.root').paths)
+                    promptInputFile = [f for f in preparedFiles if 'Prompt' in f]
+                    promptOutputFile = os.path.join(config.get("outputPath"), f'McTreeForMLPromptTrain_{ptMin}_{ptMax}.root')
+                    command = f"hadd -f -k -j 16 -n 2 {promptOutputFile} " + " ".join(promptInputFile)
+                    os.system(command)
+                    fdInputFile = [f for f in preparedFiles if 'FD' in f]
+                    fdOutputFile = os.path.join(config.get("outputPath"), f'McTreeForMLFDTrain_{ptMin}_{ptMax}.root')
+                    command = f"hadd -f -k -j 16 -n 2 {fdOutputFile} " + " ".join(fdInputFile)
+                    os.system(command)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Prepare Samples for ML")

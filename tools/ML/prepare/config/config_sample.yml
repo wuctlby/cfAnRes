@@ -13,7 +13,7 @@ Data:
     ]
 
   inputFiles: [
-    '/data/meta/BDT/DataPass4_MCPass4/Data/449102'
+    '/data/meta/BDT/DataPass4_MCPass4/Data/448943'
   ]
   outputPath: /data/meta/BDT/DataPass4_MCPass4/samples
   outputFileName: AO2D.root
@@ -66,17 +66,17 @@ Data:
       "fCandidateSelFlag"
     ]
   file_merge:
-    ptMins: [10, 12, 16]
-    ptMaxs: [12, 16, 24]
+    ptMins: [0, 1, 2, 3, 4] #, 5, 6, 7, 8, 10, 12, 16]
+    ptMaxs: [1, 2, 3, 4, 5] #, 6, 7, 8, 10, 12, 16, 24]
     
 
 MC:
   operations: 
     name: [
-      'df_merge',
-      'table_merge',
-      'prepare_samples_pt',
-      # 'file_merge_pt',
+      # 'df_merge',
+      # 'table_merge',
+      # 'prepare_samples_pt',
+      'file_merge_pt',
     ]
     maxWorkers: [
       # 20,
@@ -85,26 +85,32 @@ MC:
     ]
 
   inputFiles: [
-    '/data/meta/BDT/DataPass4_MCPass4/AO2D_MC_448574_0_5.root',
+    '/data/meta/BDT/DataPass4_MCPass4/Mc/462297',
   ]
   outputPath: /data/meta/BDT/DataPass4_MCPass4/samples
   outputFileName: AO2D.root
 
   prepare_samples:
     treeName: 'TreeForML'
-    ptMins: [0, 1, 2, 3, 4] #, 5, 6, 7, 8, 10, 12, 16]
-    ptMaxs: [1, 2, 3, 4, 5] #, 6, 7, 8, 10, 12, 16, 24]
+    # ptMins: [0, 1, 2, 3, 4] #, 5, 6, 7, 8, 10, 12, 16]
+    # ptMaxs: [1, 2, 3, 4, 5] #, 6, 7, 8, 10, 12, 16, 24]
+    ptMins: [5, 6, 7, 8, 10, 12, 16]
+    ptMaxs: [6, 7, 8, 10, 12, 16, 24]
+    # # low_edges: [ ]
+    # ll_edges: [  1.65, 1.65, 1.65, 1.65, 1.65] #, 1.65, 1.65, 1.65, 1.65, 1.65, 1.65, 1.65]
+    # # high_edges: []
+    # hh_edges: [  2.15, 2.15, 2.15, 2.15, 2.15] #, 2.15, 2.15, 2.15, 2.15, 2.15, 2.15, 2.15]
     # low_edges: [ ]
-    ll_edges: [  1.65, 1.65, 1.65, 1.65, 1.65] #, 1.65, 1.65, 1.65, 1.65, 1.65, 1.65, 1.65]
+    ll_edges: [1.65, 1.65, 1.65, 1.65, 1.65, 1.65, 1.65]
     # high_edges: []
-    hh_edges: [  2.15, 2.15, 2.15, 2.15, 2.15] #, 2.15, 2.15, 2.15, 2.15, 2.15, 2.15, 2.15]
+    hh_edges: [2.15, 2.15, 2.15, 2.15, 2.15, 2.15, 2.15]
     mc_prompt_filters: [
       'fOriginMcRec==1',
       '(fCandidateSelFlag == 1 && fFlagMcMatchRec == 1 || fCandidateSelFlag == 2 && fFlagMcMatchRec == -1)',
       'fNSigTpcTofPiExpPi < 3 && fNSigTpcTofKaExpKa < 3',
       'fY > -0.8 && fY < 0.8',
       'fM > 1.65 && fM < 2.15',
-      'fCpa > 0.9'
+      'fCpa > 0.92'
     ]
 
     mc_fd_filters: [
@@ -113,7 +119,7 @@ MC:
       'fNSigTpcTofPiExpPi < 3 && fNSigTpcTofKaExpKa < 3',
       'fY > -0.8 && fY < 0.8',
       'fM > 1.65 && fM < 2.15',
-      'fCpa > 0.9'
+      'fCpa > 0.92'
     ]
 
     mc_prompt_snapshot: [
@@ -176,4 +182,9 @@ MC:
         "fOriginMcRec", 
         "fCandidateSelFlag"
     ]
+  file_merge:
+    ptMins: [5, 6, 7, 8, 10, 12, 16]
+    ptMaxs: [6, 7, 8, 10, 12, 16, 24]
+    # ptMins: [5, 6, 7, 8, 10, 12, 16]
+    # ptMaxs: [6, 7, 8, 10, 12, 16, 24]
 

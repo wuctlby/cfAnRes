@@ -1,0 +1,125 @@
+inputs: [
+  /data/meta/AnRes/flow/pass4/T03_occupancy_ITS_FT0c/mc_med_ITS_459444_picked,
+  /data/meta/AnRes/flow/pass4/T03_occupancy_ITS_FT0c/mc_med_FT0C_465490_picked
+]
+labels: [
+  'Rec', 'Gen', 'Event', 'Rec', 'Gen', 'Event'
+]
+taskThns: [
+  ['taskD0', 'rec_thn'], ['taskD0', 'gen_thn']
+]
+taskHistos: [
+  'hf-candidate-creator-2prong/hCollisionsCentOcc'
+]
+axisProj: 'occ'
+axisFilters: {
+  # pt: [
+  #   [0, 24],
+  #   [0, 4],
+  #   [4, 10],
+  #   [10, 24]
+  # ]
+  score_bkg: [
+    [0, 0.004]
+  ],
+  score_FD: [
+    [0, 0.96]
+  ]
+}
+outfile: /data/meta/AnRes/flow/pass4/T03_occupancy_ITS_FT0c/occu_ratio_rebin_picked # end of file name
+dataset: 'MC_pass4_medium'
+
+# inputs: [
+#   # /data/meta/AnRes/flow/pass4/T03_occupancy_ITS_FT0c/data_med_ITS_452638,
+#   /data/meta/AnRes/flow/pass4/T03_occupancy_ITS_FT0c/data_med_FT0c_468349
+# ]
+# labels: [
+#   'candidates', 'event', 'candidates', 'event'
+# ]
+# taskThns: [
+#   ['taskD0', 'data_thn']
+# ]
+# taskHistos: [
+#   'hf-candidate-creator-2prong/hCollisionsCentOcc'
+# ]
+# axisProj: 'mass'
+# axisFilters: {
+#   # pt: [
+#   #   [0, 24],
+#   #   [0, 4],
+#   #   [4, 10],
+#   #   [10, 24]
+#   # ]
+#   score_bkg: [
+#     [0, 0.004]
+#   ],
+#   score_FD: [
+#     [0, 0.96]
+#   ],
+#   occ: [
+#     [0, 10000],
+#     [10000, 20000],
+#     [20000, 30000],
+#     [30000, 40000],
+#     [40000, 50000],
+#     [50000, 60000],
+#     [60000, 70000],
+#     # [7000, 8000],
+#     [70000, 200000]
+#   ]
+#   # occ: [
+#   #   [0, 1000],
+#   #   [1000, 2000],
+#   #   [2000, 3000],
+#   #   [3000, 4000],
+#   #   [4000, 5000],
+#   #   [5000, 6000],
+#   #   [6000, 7000],
+#   #   # [7000, 8000],
+#   #   [7000, 20000]
+#   # ]
+# }
+# outfile: /data/meta/AnRes/flow/pass4/T03_occupancy_ITS_FT0c/occu # end of file name
+# dataset: 'data_pass4_medium'
+
+# inputs: [
+#   /data/meta/AnRes/flow/pass4/T03_occupancy_ITS_FT0c/data_med_ITS_452638,
+#   /data/meta/AnRes/flow/pass4/T03_occupancy_ITS_FT0c/data_med_FT0c_468349
+# ]
+# labels: [
+#   'raw yields', 'event', 'raw yields', 'event'
+# ]
+# taskThns: [
+#   ['taskD0', 'data_thn']
+# ]
+# taskHistos: [
+#   'hf-candidate-creator-2prong/hCollisionsCentOcc'
+# ]
+# axisProj: 'mass'
+# axisFilters: {
+#   # pt: [
+#   #   [0, 24],
+#   #   [0, 4],
+#   #   [4, 10],
+#   #   [10, 24]
+#   # ]
+#   score_bkg: [
+#     [0, 0.004]
+#   ],
+#   score_FD: [
+#     [0, 0.96]
+#   ],
+#   occ: [
+#     [0, 10000],
+#     [10000, 20000],
+#     [20000, 30000],
+#     [30000, 40000],
+#     [40000, 50000],
+#     [50000, 60000],
+#     [60000, 70000],
+#     # [7000, 8000],
+#     [70000, 200000]
+#   ]
+# }
+# outfile: /data/meta/AnRes/flow/pass4/T03_occupancy_ITS_FT0c/occu_ratio # end of file name
+# dataset: 'data_pass4_medium'

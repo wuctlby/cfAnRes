@@ -1,0 +1,55 @@
+###* output infos for taskD0
+taskD0:
+    data_thn: #TODO thnsparse in data process, axis name: axis number
+        name: 'hf-task-d0/hBdtScoreVsMassVsPtVsPtBVsYVsOriginVsD0Type'
+        axes: #* axis name: axis number
+            score_bkg: 0
+            score_prompt: 1 #* depends on order of origin in training
+            score_FD: 2
+            mass: 3
+            pt: 4
+            y: 5
+            cand_type: 6 # candidate type, D0 or D0bar or reflection #TODO: add meaning of flags
+            cent: 7 # centrality
+            occ: 8 # occupancy
+    rec_thn: #* thnsparse for reconstruction
+        name: 'hf-task-d0/hBdtScoreVsMassVsPtVsPtBVsYVsOriginVsD0Type'
+        axes: #* axis name: axis number
+            score_bkg: 0
+            score_prompt: 1
+            score_FD: 2
+            mass: 3
+            pt: 4
+            y: 5
+            cand_type: 6 # candidate type, D0 or D0bar or reflection #TODO: add meaning of flags
+            pt_bmoth: 7
+            origin: 8 # origin of D0, prompt or non-prompt #TODO: add meaning of flags
+            npvcontr: 9 # number of primary vertex contributors
+            cent: 10 # centrality
+            occ: 11 # occupancy
+    gen_thn: #* thnsparse for generation
+        name: 'hf-task-d0/hSparseAcc'
+        axes: #* axis name: axis number
+            mass: 0
+            pt: 1
+            y: 2
+            origin: 3 # origin of D0, prompt or non-prompt #TODO: add meaning of flags
+            npvcontr: 4 # number of primary vertex contributors
+            cent: 5 # centrality
+            occ: 6 # occupancy
+
+###* output infos for taskCharmHadronFlow
+taskFlow:
+    sp_thn: #* thnsparse for scalar-product method
+        name: 'hf-task-flow-charm-hadrons/hSparseFlowCharm'
+        axes: #* axis name: axis number
+            mass: 0
+            pt: 1
+            cent: 2 # centrality
+            sp: 3
+            score_bkg: 4
+            score_FD: 5
+            occ: 6 # occupancy
+    res_thn: #TODO thnsparse for resolution
+        name: ''
+        axes: ''
