@@ -1,0 +1,9 @@
+AlienOutputDirs: [
+  /alice/cern.ch/user/a/alihyperloop/jobs/0337/hy_3377234,/alice/cern.ch/user/a/alihyperloop/jobs/0337/hy_3377233,/alice/cern.ch/user/a/alihyperloop/jobs/0337/hy_3377232,/alice/cern.ch/user/a/alihyperloop/jobs/0337/hy_3377231,/alice/cern.ch/user/a/alihyperloop/jobs/0337/hy_3377230,/alice/cern.ch/user/a/alihyperloop/jobs/0337/hy_3377229,/alice/cern.ch/user/a/alihyperloop/jobs/0337/hy_3377228,/alice/cern.ch/user/a/alihyperloop/jobs/0337/hy_3377218,/alice/cern.ch/user/a/alihyperloop/jobs/0337/hy_3377217
+]
+LocalPath: /home/wuct/MetaData/DATA/OO/apass2/sp/flook_corrected_evt_sels
+ForceStage: False # in case files are not merged properly, force downloading staged files
+FileName: AnalysisResults.root
+# AnalysisResults.root
+# AO2D.root
+# AA for AnalysisResults.root and AO2D.root
