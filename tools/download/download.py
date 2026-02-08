@@ -96,9 +96,9 @@ def download_file(args):
     os.remove(os.path.join(local_dir, 'download.log'))
     return f"{local_dir}/{FileName}"
 
-def batch_download_files(download_file, LocalPath, NWorks, SortedAlienFileList, DownloadedFiles, fn):
+def batch_download_files(download_file, LocalPath, NWorks, SortedAlienFileList, DownloadedFiles, fn, total_size=None):
     print(f"Starting download for file: {fn}")
-    with alive_bar(sum(len(lst) for lst in SortedAlienFileList), title=f"Downloading files: {fn}") as bar:
+    with alive_bar(sum(len(lst) for lst in SortedAlienFileList), title=f"Downloading files ({total_size / (1024**3):.4f} GB): {fn}") as bar:
         with ThreadPoolExecutor(max_workers=NWorks) as executor:
             tasks = (
                         (iFile, alien_file, RunNumber, LocalPath, fn)
@@ -121,15 +121,17 @@ def estimate_total_size(SortedAlienFileList):
     file_list = []
     for FileSingleRunList in SortedAlienFileList:
         for alien_file, _ in FileSingleRunList:
-            file_list.append(alien_file)
+            file_list.append(alien_file.replace(',', ''))
+    chunk_size = 20
     with ThreadPoolExecutor(max_workers=22) as executor:
-        futures = [executor.submit(lambda f: os.popen(f"alien_ls -l {f}").read(), alien_file) for alien_file in file_list]
+        futures = [executor.submit(lambda f: os.popen(f"alien_ls -l {f}").read(), " ".join(file_list[i:i+chunk_size])) for i in range(0, len(file_list), chunk_size)]
         for f in as_completed(futures):
             result = f.result()
             size_match = re.search(r"^[-drwxst]+\s+\w+\s+\w+\s+(\d+)", result)
             if size_match:
                 total_size += int(size_match.group(1))
-    print(f"Estimated total download size: {total_size / (1024**3):.2f} GB")
+    print(f"Estimated total download size: {total_size / (1024**3):.4f} GB")
+    return total_size
 
 def download(config):
     if isinstance(config, dict):
@@ -145,7 +147,7 @@ def download(config):
         ForceStage = config.get('ForceStage', False)
         FileName = config.get('FileName', 'AnalysisResults.root')
 
-    NWorks = 22
+    NWorks = 24
 
     # Fetch file list needed to be downloaded from Alien
     with alive_bar(len(AlienOutputDirs), title="Fetching file list from Alien") as bar:
@@ -163,16 +165,16 @@ def download(config):
         list(g) for _, g in groupby(sorted(AlienFileList, key=lambda x: (x[1], x[0])), key=lambda x: x[1])
     ]
     print(f"Outputs from Alien were found and sorted with Stage = {ForceStage}. Total runs: {len(SortedAlienFileList)}")
-    estimate_total_size(SortedAlienFileList)
+    total_size = estimate_total_size(SortedAlienFileList)
 
     # Download files from Alien
     DownloadedFiles = []
     if FileName == "AA":
         FileNames = ["AnalysisResults.root", "AO2D.root"]
         for fn in FileNames:
-            batch_download_files(download_file, LocalPath, NWorks, SortedAlienFileList, DownloadedFiles, fn)
+            batch_download_files(download_file, LocalPath, NWorks, SortedAlienFileList, DownloadedFiles, fn, total_size)
     else:
-        batch_download_files(download_file, LocalPath, NWorks, SortedAlienFileList, DownloadedFiles, FileName)
+        batch_download_files(download_file, LocalPath, NWorks, SortedAlienFileList, DownloadedFiles, FileName, total_size)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Download files from Alien")
