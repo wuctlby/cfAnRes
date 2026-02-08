@@ -3,6 +3,14 @@ name = "cfanres"
 version = "0.1.0"
 description = "A collection of tools for analyzing analysis results in ALICE"
 
+dependencies = [
+    "ipywidgets>=8.1.8",
+    "rich>=14.2.0",
+]
+
+[python]
+venv = "disable"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -10,3 +18,6 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/cfanres"]
 include = ["doc/** -> cfanres/data"]
+
+[tool.uv.sources]
+cfanres = { path = ".", editable = true }

@@ -1,9 +1,9 @@
 AlienOutputDirs: [
-  /alice/cern.ch/user/a/alihyperloop/jobs/0337/hy_3377234,/alice/cern.ch/user/a/alihyperloop/jobs/0337/hy_3377233,/alice/cern.ch/user/a/alihyperloop/jobs/0337/hy_3377232,/alice/cern.ch/user/a/alihyperloop/jobs/0337/hy_3377231,/alice/cern.ch/user/a/alihyperloop/jobs/0337/hy_3377230,/alice/cern.ch/user/a/alihyperloop/jobs/0337/hy_3377229,/alice/cern.ch/user/a/alihyperloop/jobs/0337/hy_3377228,/alice/cern.ch/user/a/alihyperloop/jobs/0337/hy_3377218,/alice/cern.ch/user/a/alihyperloop/jobs/0337/hy_3377217
+  /alice/cern.ch/user/a/alihyperloop/jobs/0355/hy_3552403/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0355/hy_3552402/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0355/hy_3552384/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0355/hy_3552383/AOD
 ]
-LocalPath: /home/wuct/MetaData/DATA/OO/apass2/sp/flook_corrected_evt_sels
+LocalPath: /home/wuct/MetaData/DATA/OO/apass2/corr/tlook_MY_small/ME
 ForceStage: False # in case files are not merged properly, force downloading staged files
-FileName: AnalysisResults.root
+FileName: AO2D.root
 # AnalysisResults.root
 # AO2D.root
 # AA for AnalysisResults.root and AO2D.root

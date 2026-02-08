@@ -99,7 +99,7 @@ def download_file(args):
 def batch_download_files(download_file, LocalPath, NWorks, SortedAlienFileList, DownloadedFiles, fn):
     print(f"Starting download for file: {fn}")
     with alive_bar(sum(len(lst) for lst in SortedAlienFileList), title=f"Downloading files: {fn}") as bar:
-        with ThreadPoolExecutor(max_workers=NWorks*2) as executor:
+        with ThreadPoolExecutor(max_workers=NWorks) as executor:
             tasks = (
                         (iFile, alien_file, RunNumber, LocalPath, fn)
                         for FileSingleRunList in SortedAlienFileList
@@ -116,19 +116,34 @@ def batch_download_files(download_file, LocalPath, NWorks, SortedAlienFileList, 
                     print(f"[ERROR] Task failed: {e}")
                 bar()
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Download files from Alien")
-    parser.add_argument('config_download', nargs='?', default='./config_download.yml',
-                        help='Configuration file for downloading files')
-    args = parser.parse_args()
+def estimate_total_size(SortedAlienFileList):
+    total_size = 0
+    file_list = []
+    for FileSingleRunList in SortedAlienFileList:
+        for alien_file, _ in FileSingleRunList:
+            file_list.append(alien_file)
+    with ThreadPoolExecutor(max_workers=22) as executor:
+        futures = [executor.submit(lambda f: os.popen(f"alien_ls -l {f}").read(), alien_file) for alien_file in file_list]
+        for f in as_completed(futures):
+            result = f.result()
+            size_match = re.search(r"^[-drwxst]+\s+\w+\s+\w+\s+(\d+)", result)
+            if size_match:
+                total_size += int(size_match.group(1))
+    print(f"Estimated total download size: {total_size / (1024**3):.2f} GB")
 
-    with open(args.config_download, 'r') as cfg:
-        config = yaml.safe_load(cfg)
-
-    AlienOutputDirs = config.get('AlienOutputDirs')
-    LocalPath = config.get('LocalPath')
-    ForceStage = config.get('ForceStage', False)
-    FileName = config.get('FileName', 'AnalysisResults.root')
+def download(config):
+    if isinstance(config, dict):
+        AlienOutputDirs = config.get('AlienOutputDirs')
+        LocalPath = config.get('LocalPath')
+        ForceStage = config.get('ForceStage', False)
+        FileName = config.get('FileName', 'AnalysisResults.root')
+    else:
+        with open(args.config_download, 'r') as cfg:
+            config = yaml.safe_load(cfg)
+        AlienOutputDirs = config.get('AlienOutputDirs')
+        LocalPath = config.get('LocalPath')
+        ForceStage = config.get('ForceStage', False)
+        FileName = config.get('FileName', 'AnalysisResults.root')
 
     NWorks = 22
 
@@ -148,6 +163,7 @@ if __name__ == "__main__":
         list(g) for _, g in groupby(sorted(AlienFileList, key=lambda x: (x[1], x[0])), key=lambda x: x[1])
     ]
     print(f"Outputs from Alien were found and sorted with Stage = {ForceStage}. Total runs: {len(SortedAlienFileList)}")
+    estimate_total_size(SortedAlienFileList)
 
     # Download files from Alien
     DownloadedFiles = []
@@ -157,3 +173,11 @@ if __name__ == "__main__":
             batch_download_files(download_file, LocalPath, NWorks, SortedAlienFileList, DownloadedFiles, fn)
     else:
         batch_download_files(download_file, LocalPath, NWorks, SortedAlienFileList, DownloadedFiles, FileName)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Download files from Alien")
+    parser.add_argument('config_download', nargs='?', default='./config_download.yml',
+                        help='Configuration file for downloading files')
+    args = parser.parse_args()
+
+    download(args)

@@ -1,0 +1,44 @@
+# Meta config
+META_CONFIG: &META_CONFIG
+  AlienOutputDirs: [] # output dirs to download from
+  LocalPath: '' # local path to save files
+  ForceStage: False # in case files are not merged properly, force downloading staged files
+  FileName: AO2D.root
+  # AnalysisResults.root
+  # AO2D.root
+  # AA for AnalysisResults.root and AO2D.root
+
+# predefined task base
+AR: &AR
+  FileName: AnalysisResults.root
+AO: &AO
+  FileName: AO2D.root
+AA: &AA
+  FileName: AA
+
+# tasks
+task1: &task1
+  <<: *META_CONFIG
+  <<: *AO # *AR or *AO or *AA
+  AlienOutputDirs: [
+    /alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3895469/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3895468,/alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3895467/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3895466,/alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3895465,/alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3895464/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3895463/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3895462/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3895461/AOD
+  ]
+  LocalPath: /home/wuct/MetaData/DATA/OO/apass2/corr/fthlook_Biao/large_haft/SE/k020
+task2: &task2
+  <<: *task1
+  AlienOutputDirs: [
+    /alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3894353/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3894352,/alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3894351/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3894350,/alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3894342,/alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3894341,/alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3894340/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3894339/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3894338/AOD
+  ]
+  LocalPath: /home/wuct/MetaData/DATA/OO/apass2/corr/fthlook_Biao/large_haft/ME/k020
+task3: &task3
+  <<: *task1
+  AlienOutputDirs: [
+    /alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3895478/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3895477,/alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3895476/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3895475/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3895474,/alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3895473,/alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3895472/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3895471/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3895470/AOD
+  ]
+  LocalPath: /home/wuct/MetaData/DATA/OO/apass2/corr/fthlook_Biao/small/ME/k20100
+task4: &task4
+  <<: *task1
+  AlienOutputDirs: [
+    /alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3895514/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3895513,/alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3895512/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3895511/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3895510,/alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3895509,/alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3895508/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3895507/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0389/hy_3895506/AOD
+  ]
+  LocalPath: /home/wuct/MetaData/DATA/OO/apass2/corr/fthlook_Biao/small/SE/k20100
