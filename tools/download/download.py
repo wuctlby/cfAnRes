@@ -34,31 +34,35 @@ def filter_staged_files(staged_files):
 
 def get_file_list_from_alien(args):
     '''Get the list of files from Alien directory.'''
-    alien_dirs, Stage = args
+    alien_dirs, Stage, run_num = args
     alien_dirs = [alien_dirs] if not isinstance(alien_dirs, list) else alien_dirs
 
     file_list = []
     for alien_dir in alien_dirs:
         temp_file_list = []
-        RunNumber = alien_dir.strip().split('/')[-1]
-        if RunNumber == "AOD": # in case it is slim data
-            RunNumber = alien_dir.strip().split('/')[-2]
+        HyJobID = alien_dir.strip().split('/')[-1]
+        if HyJobID == "AOD": # in case it is slim data
+            HyJobID = alien_dir.strip().split('/')[-2]
+            
+        # Determine subdirectory name based on RunNumMatch
+        dir_id = str(run_num) if run_num is not None else HyJobID
+
         if not Stage:
-            os.system(f"alien_find {alien_dir} AnalysisResults.root -r > output_{RunNumber}.txt")
+            os.system(f"alien_find {alien_dir} AnalysisResults.root -r > output_{HyJobID}.txt")
         else:
-            with open(f"output_{RunNumber}.txt", "w") as f:
+            with open(f"output_{HyJobID}.txt", "w") as f:
                 f.write("")
 
         check_unmerged = False
-        with open(f"output_{RunNumber}.txt", "r") as f:
-            temp_file_list = [(line.strip(), RunNumber) for line in f if line.strip()]
+        with open(f"output_{HyJobID}.txt", "r") as f:
+            temp_file_list = [(line.strip(), dir_id) for line in f if line.strip()]
             if len(temp_file_list) == 0:
                 check_unmerged = True
 
         if check_unmerged:
-            os.system(f"alien_find {alien_dir} */AnalysisResults.root > output_{RunNumber}.txt")
+            os.system(f"alien_find {alien_dir} */AnalysisResults.root > output_{HyJobID}.txt")
             staged_files = []
-            with open(f"output_{RunNumber}.txt", "r") as uf:
+            with open(f"output_{HyJobID}.txt", "r") as uf:
                 for line in uf:
                     staged_files.append(line.strip())
 
@@ -66,17 +70,17 @@ def get_file_list_from_alien(args):
             staged_files = list(set(staged_files))
 
             # keeping only Stage_(max-1)
-            temp_file_list.extend([(line, RunNumber) for line in filter_staged_files(staged_files)])
+            temp_file_list.extend([(line, dir_id) for line in filter_staged_files(staged_files)])
 
         file_list.extend(temp_file_list)
-        os.remove(f"output_{RunNumber}.txt")
+        os.remove(f"output_{HyJobID}.txt")
     return file_list
 
 def download_file(args):
     '''Download a file from Alien to local path.'''
-    iFile, alien_file, RunNumber, LocalPath, FileName = args
+    iFile, alien_file, SubDir, LocalPath, FileName = args
 
-    local_dir = os.path.join(LocalPath, RunNumber, f"{iFile:04d}")
+    local_dir = os.path.join(LocalPath, str(SubDir), f"{iFile:04d}")
     os.makedirs(local_dir, exist_ok=True)
     if FileName == "AO2D.root":
         os.system(f"alien_cp -T 16 {alien_file.replace('AnalysisResults.root', 'AO2D.root')} file:{local_dir}/AO2D.root > {os.path.join(local_dir, 'download.log')}")
@@ -98,12 +102,12 @@ def download_file(args):
 
 def batch_download_files(download_file, LocalPath, NWorks, SortedAlienFileList, DownloadedFiles, fn, total_size=None):
     print(f"Starting download for file: {fn}")
-    with alive_bar(sum(len(lst) for lst in SortedAlienFileList), title=f"Downloading files ({total_size / (1024**3):.4f} GB): {fn}") as bar:
+    with alive_bar(sum(len(lst) for lst in SortedAlienFileList), title=f"Downloading files ({total_size / (1024**2):.4f} GB): {fn}") as bar:
         with ThreadPoolExecutor(max_workers=NWorks) as executor:
             tasks = (
-                        (iFile, alien_file, RunNumber, LocalPath, fn)
+                        (iFile, alien_file, SubDir, LocalPath, fn)
                         for FileSingleRunList in SortedAlienFileList
-                        for iFile, (alien_file, RunNumber) in enumerate(FileSingleRunList, start=1)
+                        for iFile, (alien_file, SubDir) in enumerate(FileSingleRunList, start=1)
                     )
             futures = [executor.submit(download_file, arg) for arg in tasks]
 
@@ -130,7 +134,7 @@ def estimate_total_size(SortedAlienFileList):
             size_match = re.search(r"^[-drwxst]+\s+\w+\s+\w+\s+(\d+)", result)
             if size_match:
                 total_size += int(size_match.group(1))
-    print(f"Estimated total download size: {total_size / (1024**3):.4f} GB")
+    print(f"Estimated total download size: {total_size / (1024**2):.4f} GB")
     return total_size
 
 def download(config):
@@ -139,6 +143,8 @@ def download(config):
         LocalPath = config.get('LocalPath')
         ForceStage = config.get('ForceStage', False)
         FileName = config.get('FileName', 'AnalysisResults.root')
+        RunNumMatch = config.get('RunNumMatch', False)
+        RunList = config.get('RunList', [])
     else:
         with open(args.config_download, 'r') as cfg:
             config = yaml.safe_load(cfg)
@@ -146,25 +152,40 @@ def download(config):
         LocalPath = config.get('LocalPath')
         ForceStage = config.get('ForceStage', False)
         FileName = config.get('FileName', 'AnalysisResults.root')
+        RunNumMatch = config.get('RunNumMatch', False)
+        RunList = config.get('RunList', [])
 
     NWorks = 24
+
+    if RunNumMatch:
+        if len(RunList) != len(AlienOutputDirs):
+            print("Error: RunList length does not match AlienOutputDirs length.")
+            return
 
     # Fetch file list needed to be downloaded from Alien
     with alive_bar(len(AlienOutputDirs), title="Fetching file list from Alien") as bar:
         with ProcessPoolExecutor(max_workers=NWorks) as executor:
-            task = (
-                (alien_dir, ForceStage)
-                for alien_dir in AlienOutputDirs
-            )
+            if RunNumMatch:
+                task = (
+                    (alien_dir, ForceStage, run_num)
+                    for alien_dir, run_num in zip(AlienOutputDirs, RunList)
+                )
+            else:
+                task = (
+                    (alien_dir, ForceStage, None)
+                    for alien_dir in AlienOutputDirs
+                )
+            
             futures = [executor.submit(get_file_list_from_alien, arg) for arg in task]
             AlienFileList = []
             for f in as_completed(futures):
                 AlienFileList.extend(f.result())
                 bar()
+                
     SortedAlienFileList = [
         list(g) for _, g in groupby(sorted(AlienFileList, key=lambda x: (x[1], x[0])), key=lambda x: x[1])
     ]
-    print(f"Outputs from Alien were found and sorted with Stage = {ForceStage}. Total runs: {len(SortedAlienFileList)}")
+    print(f"Outputs from Alien were found and sorted with Stage = {ForceStage}. Total runs/jobs: {len(SortedAlienFileList)}")
     total_size = estimate_total_size(SortedAlienFileList)
 
     # Download files from Alien
