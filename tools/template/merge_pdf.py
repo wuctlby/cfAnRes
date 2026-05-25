@@ -139,26 +139,39 @@ def collage_png_pages_to_single(
     big_img.save(output_png)
     return output_png
 
-input_path = "/home/wuct/MetaData/DATA/PbPb/apass4/ptShift/cutvar_woRef_combined/ptcenters_hist"
-cuts = [cut for cut in Path(input_path).iterdir() if cut.is_dir() and 'ptcenter' in cut.name]
-cuts.sort()
-import re
-pt = re.compile(r'pt_(\d+)_(\d+)')
-for iCut, cut in enumerate(cuts):
-    inpdf = []
-    for file in cut.rglob("*.png"):
-        if 'fPt' in file.name:
-            inpdf.append(str(file))
-    inpdf.sort(key=lambda x: int(pt.search(x).group(0).split('_')[1]))
-    print(inpdf)
-    outpdf = input_path + "/collaged_fPt" + f"_ptcenter{iCut}.pdf"
-    outpng = outpdf.replace('.pdf', '.png')
-
+# input_path = "/home/wuct/MetaData/DATA/OO/apass2/corr/results/fifth/k020/fitprocedure/CorrelExtract_0d8_1d3_Appmass/results_fixed_woBL"
+# cuts = [cut for cut in Path(input_path).iterdir() if cut.is_dir() and 'ptcenter' in cut.name]
+# cuts.sort()
+# import re
+# pt = re.compile(r'pt_(\d+)_(\d+)')
+# for iCut, cut in enumerate(cuts):
+#     inpdf = []
+#     for file in cut.rglob("*.png"):
+#         if 'fPt' in file.name:
+#             inpdf.append(str(file))
+#     inpdf.sort(key=lambda x: int(pt.search(x).group(0).split('_')[1]))
+#     print(inpdf)
+#     outpdf = input_path + "/collaged_fPt" + f"_ptcenter{iCut}.pdf"
+#     outpng = outpdf.replace('.pdf', '.png')
+import argparse
+if __name__ == "__main__":
+    argparser = argparse.ArgumentParser(description="Collage PDF pages into a single page.")
+    argparser.add_argument("input", nargs="+", help="Input PDF file(s) or PNG file(s). If multiple, they will be merged in order.")
+    argparser.add_argument("--o", "--output", required=True, help="Output file path. Should end with .pdf for PDF output or .png for PNG output.")
+    argparser.add_argument("--cols", type=int, default=None, help="Number of columns in the collage. If not set, it will be automatically estimated to best fit a 16:9 aspect ratio.")
+    argparser.add_argument("--margin", type=float, default=2.0, help="Margin (in points for PDF or pixels for PNG) around each image in the collage. Set smaller for tighter spacing.")
+    argparser.add_argument("--render_zoom", type=float, default=2.0, help="Zoom factor for rendering PDF to PNG. Higher values produce clearer PNGs but larger file sizes. Only used when outputting PNG.")
+    args = argparser.parse_args()
+    inpdf = args.input
+    outpng = args.output
+    cols = args.cols
+    margin = args.margin
+    render_zoom = args.render_zoom
     collage_png_pages_to_single(
         input_png=inpdf,
         output_png=outpng,
         page_width=1920, page_height=1080,  # 16:9
-        cols=5,           # 让函数自动估列数；也可手动设 cols=4 之类
+        cols=4,           # 让函数自动估列数；也可手动设 cols=4 之类
         margin=0,          # 图与图之间更紧凑；想更紧就设成 0
     )
 

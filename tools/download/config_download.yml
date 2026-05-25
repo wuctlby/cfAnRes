@@ -2,7 +2,7 @@ AlienOutputDirs: [
   /alice/cern.ch/user/a/alihyperloop/jobs/0432/hy_4320622/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0432/hy_4320621/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0432/hy_4320619/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0432/hy_4320618/AOD
 ]
 LocalPath: /home/wuct/MetaData/MC/production/OO/test_apass2/data
-ForceStage: True # in case files are not merged properly, force downloading staged files
+ForceStage: False # in case files are not merged properly, force downloading staged files
 FileName: AO2D.root
 RunNumMatch: True
 RunList: [

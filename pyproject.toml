@@ -6,6 +6,7 @@ description = "A collection of tools for analyzing analysis results in ALICE"
 dependencies = [
     "ipywidgets>=8.1.8",
     "rich>=14.2.0",
+    "natsort"
 ]
 
 [python]

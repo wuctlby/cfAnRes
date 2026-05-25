@@ -1,0 +1,5 @@
+hadd Target file: /home/wuct/ALICE/reps/cfAnRes/tools/notebook/charmbulk/wf/test/preprocess/preprocess/pt_10_20/DATA/AnalysisResults_pt_10_20.root
+hadd compression setting for all output: 101
+hadd Source file 1: ./jobs/AnalysisResults_0.root
+hadd Target path: /home/wuct/ALICE/reps/cfAnRes/tools/notebook/charmbulk/wf/test/preprocess/preprocess/pt_10_20/DATA/AnalysisResults_pt_10_20.root:/
+hadd Target path: /home/wuct/ALICE/reps/cfAnRes/tools/notebook/charmbulk/wf/test/preprocess/preprocess/pt_10_20/DATA/AnalysisResults_pt_10_20.root:/CharmBulk
