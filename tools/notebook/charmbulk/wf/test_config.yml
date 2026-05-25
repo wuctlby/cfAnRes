@@ -1,6 +1,6 @@
 operations:
-    preprocess: false
-    make_yaml: false
+    preprocess: true
+    make_yaml: true
     proj_data: true
     proj_mc: false
     mass_fit: false
@@ -9,10 +9,10 @@ operations:
 
 outdir: '/home/wuct/ALICE/reps/cfAnRes/tools/notebook/charmbulk/wf/test'
 suffix: 'test'
-centrality: 'k010'
+centrality: 'k3040'
 Dmeson: 'Dzero'
 
-ptbins: [1.0, 2.0, 2.5, 3.0]
+ptbins: [0.2, 1, 2, 3, 4, 5, 6, 8]
 
 inputs:
     # Custom input paths (optional — if not set, auto-detects from outdir)
@@ -42,7 +42,7 @@ projections:
         # --- Optional, only for proj_mc_cent_diff ---
         CentDiffBinsMCYieldsStep: 2
     proj_data:
-        process: ["proj_data"] # Options: "proj_data", "proj_data_sp"
+        process: ["proj_data_charmbulk"] # Options: "proj_data", "proj_data_sp"
         # --- Options for proj_data_charmbulk ---
         y_bins: [0.2, 0.8]
         # --- Options for proj_data_sp ---

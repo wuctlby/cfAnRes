@@ -147,21 +147,21 @@ thns:
   RecoPromptD0:
     <<: *D0RecBase
     name: RecoPrompt
-    aliname: ["RecoPromptD0"]
+    aliname: ["RecoPromptD0", "RecoPrompt"]
     pre_axisids: [0, 2, 3, 4, 10]
     pre_thname: hSparseRecoPrompt
     pre_thpath: RecoPrompt
   RecoFDD0:
     <<: *D0RecBase
     name: RecoFD
-    aliname: ["RecoFDD0"]
+    aliname: ["RecoFDD0", "RecoFD"]
     pre_axisids: [0, 2, 3, 4, 10]
     pre_thname: hSparseRecoFD
     pre_thpath: RecoFD
   RecoReflD0:
     <<: *D0RecBase
     name: RecoRefl
-    aliname: ["RecoReflD0"]
+    aliname: ["RecoReflD0", "RecoRefl"]
     pre_axisids: [0, 2, 3, 4, 10]
     pre_thname: hSparseRecoRefl
     pre_thpath: RecoRefl

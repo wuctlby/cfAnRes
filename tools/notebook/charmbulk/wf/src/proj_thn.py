@@ -14,6 +14,7 @@ from alive_progress import alive_bar
 sys.path.append(f"{os.path.dirname(os.path.abspath(__file__))}/../utils")
 from utils_proj import get_pt_weights, proj_multitrial, get_pt_preprocessed_sparses, proj_mc_reco, proj_mc_gen, proj_data
 from utils import get_centrality_bins, make_dir_root_file, logger
+from utils_thn import GetTHnInfo
 
 ROOT.TH1.AddDirectory(False)
 
@@ -85,6 +86,8 @@ if __name__ == "__main__":
             # —————— Project data with the specified processes ————————————————————
             if operations.get("proj_data"):
                 for process in config["projections"].get("process", "proj_data"): #TODO: add the possibility to specify different processes at the same time
+                    sparse_data.GetAxis(axes[sparse_data.keys()]['ScoreBkg']).SetRangeUser(bkg_min, bkg_max)
+                    sparse_data.GetAxis(axes[sparse_data.keys()]['ScoreFD']).SetRangeUser(fd_min, fd_max)
                     proj_data(i_pt, process, sparse_data, axes, config["projections"]["proj_data"], write_opt_data)
                 logger("Projected data!")
 

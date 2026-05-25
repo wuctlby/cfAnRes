@@ -1,0 +1,9 @@
+hadd Target file: /home/wuct/ALICE/reps/cfAnRes/tools/notebook/charmbulk/wf/test//preprocess/pt_30_40/MC/AnalysisResults_pt_30_40.root
+hadd compression setting for all output: 101
+hadd Source file 1: ./jobs/AnalysisResults_0.root
+hadd Target path: /home/wuct/ALICE/reps/cfAnRes/tools/notebook/charmbulk/wf/test//preprocess/pt_30_40/MC/AnalysisResults_pt_30_40.root:/
+hadd Target path: /home/wuct/ALICE/reps/cfAnRes/tools/notebook/charmbulk/wf/test//preprocess/pt_30_40/MC/AnalysisResults_pt_30_40.root:/RecoPrompt
+hadd Target path: /home/wuct/ALICE/reps/cfAnRes/tools/notebook/charmbulk/wf/test//preprocess/pt_30_40/MC/AnalysisResults_pt_30_40.root:/RecoFD
+hadd Target path: /home/wuct/ALICE/reps/cfAnRes/tools/notebook/charmbulk/wf/test//preprocess/pt_30_40/MC/AnalysisResults_pt_30_40.root:/RecoRefl
+hadd Target path: /home/wuct/ALICE/reps/cfAnRes/tools/notebook/charmbulk/wf/test//preprocess/pt_30_40/MC/AnalysisResults_pt_30_40.root:/GenPrompt
+hadd Target path: /home/wuct/ALICE/reps/cfAnRes/tools/notebook/charmbulk/wf/test//preprocess/pt_30_40/MC/AnalysisResults_pt_30_40.root:/GenFD
