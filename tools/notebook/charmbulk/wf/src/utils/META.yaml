@@ -146,19 +146,60 @@ thns:
     pre_thpath:
   RecoPromptD0:
     <<: *D0RecBase
-    aliname: ["RecoPrompt"]
+    name: RecoPrompt
+    aliname: ["RecoPromptD0"]
     pre_axisids: [0, 2, 3, 4, 10]
     pre_thname: hSparseRecoPrompt
     pre_thpath: RecoPrompt
   RecoFDD0:
     <<: *D0RecBase
-    aliname: ["RecoFD"]
+    name: RecoFD
+    aliname: ["RecoFDD0"]
     pre_axisids: [0, 2, 3, 4, 10]
     pre_thname: hSparseRecoFD
     pre_thpath: RecoFD
   RecoReflD0:
     <<: *D0RecBase
-    aliname: ["RecoRefl"]
+    name: RecoRefl
+    aliname: ["RecoReflD0"]
     pre_axisids: [0, 2, 3, 4, 10]
     pre_thname: hSparseRecoRefl
     pre_thpath: RecoRefl
+
+# ─── task flow ─────────────────────────────────────────────────────────────────
+flow:
+    name: FlowSP
+    aliname: [flow, FlowSP]
+    cand: ["D0", "Dplus", "Dstar"]
+    description: "hSparseFlowCharm — 12 axes (inv mass, pT, cent, SP, scores, event flags)"
+    datatype: "DATA"
+    thname: hSparseFlowCharm
+    thpath: hf-task-flow-charm-hadrons
+    axes:
+      - id: 0
+        name: Inv. mass
+      - id: 1
+        name: pT
+      - id: 2
+        name: Centrality
+      - id: 3
+        name: Sp
+      - id: 4
+        name: Bkg score
+      - id: 5
+        name: FD score
+      - id: 6
+        name: OccupancyITS
+      - id: 7
+        name: NoSameBunchPileup
+      - id: 8
+        name: Occupancy
+      - id: 9
+        name: NoCollInTimeRangeNarrow
+      - id: 10
+        name: NoCollInTimeRangeStandard
+      - id: 11
+        name: NoCollInRofStandard
+    pre_axisids: [0, 1, 2, 3, 4, 5]
+    pre_thname: hSparseFlowSP
+    pre_thpath: FlowSP

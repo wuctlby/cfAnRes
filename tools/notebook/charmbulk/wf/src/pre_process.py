@@ -52,12 +52,12 @@ def make_dir_root_file(directory, file, verbose=True):
         if verbose:
             logger(f"Directory {directory} already exists in file {file.GetName()}", level='WARNING', script=SCRIPT)
 
-def get_inputs_sparse(file, full_cfg, thn_info, sparse_name, debug=False):
+def get_inputs_sparse(file, Dmeson, thn_info, sparse_name, debug=False):
     """Load a single sparse and axes info
     
     Args:
         file (TFile): input ROOT file
-        full_cfg (dict): full configuration dictionary
+        Dmeson (str): D meson type
         thn_info (THnSparseInfo): THnSparseInfo object
         sparse_name (str): name of the sparse to load
         debug (bool, optional): print debug info. Defaults to False.
@@ -69,9 +69,9 @@ def get_inputs_sparse(file, full_cfg, thn_info, sparse_name, debug=False):
     if sparse is None:
         logger(f"Sparse {thn_info.thname} not found in file {file.GetName()} at path {thn_info.thpath}", level='ERROR', script=SCRIPT)
     else:
-        logger(f"Sparse {sparse} loaded from {thn_info.thpath}", level='INFO', script=SCRIPT)
+        logger(f"Sparse {thn_info.thname} loaded from {thn_info.thpath}", level='INFO', script=SCRIPT)
 
-    if full_cfg['Dmeson'] == 'Dzero' and thn_info.datatype == 'MC':
+    if Dmeson == 'Dzero' and thn_info.datatype == 'MC':
         # TODO: safety checks for Dmeson reflecton and secondary peak
         if sparse_name == "RecoPrompt":
             sparse.GetAxis(thn_info.axis_id('Origin')).SetRange(2, 2)       # select prompt
@@ -117,18 +117,18 @@ def process_sparse(i_file, infile_path, full_cfg, sparse_name, prep_out_dir):
     infile = TFile.Open(infile_path, 'read')
     thn_info = GetTHnInfo.thn(sparse_name, cand=full_cfg['Dmeson'])
     logger(f'Processing sparse {sparse_name} for file {i_file}', level='INFO', script=SCRIPT)
-    sparse = get_inputs_sparse(infile, full_cfg, thn_info, sparse_name, debug=False)
+    sparse = get_inputs_sparse(infile, full_cfg['Dmeson'], thn_info, sparse_name, debug=False)
     if sparse is None:
         logger(f"Sparse {sparse_name} not found in file {infile_path} at path {thn_info.thurl}", level='ERROR', script=SCRIPT)
         infile.Close()
         return
     else:
-        logger(f"Sparse {sparse} loaded from {thn_info.thurl}", level='INFO', script=SCRIPT)
+        logger(f"Sparse {thn_info.thname} loaded from {thn_info.thurl}", level='INFO', script=SCRIPT)
 
     # Apply centrality cut if centrality axis exists
     if thn_info.axis_id('cent') is not None:
         cent_min, cent_max = get_centrality_bins(full_cfg.get('centrality', 'k0100'))[1] # Default to 0-100% if not specified
-        logger(f"Applying cent cut to sparse {sparse} with value {cent_min} -- {cent_max}", "INFO", script=SCRIPT)
+        logger(f"Applying cent cut to sparse {thn_info.thname} with value {cent_min} -- {cent_max}", "INFO", script=SCRIPT)
         sparse.GetAxis(thn_info.axis_id('cent')).SetRangeUser(cent_min, cent_max)
 
     pt_mins, pt_maxs = full_cfg['ptbins'][:-1], full_cfg['ptbins'][1:]
@@ -136,7 +136,7 @@ def process_sparse(i_file, infile_path, full_cfg, sparse_name, prep_out_dir):
     axes_to_keep = [thn_info.axis_name(i) for i in thn_info.axisids_kept]
     type_name = thn_info.datatype
 
-    logger(f"Projecting sparse {sparse} for file {i_file} with axes to keep {axes_to_keep}", level='INFO', script=SCRIPT)
+    logger(f"Projecting sparse {thn_info.thname} for file {i_file} with axes to keep {axes_to_keep}", level='INFO', script=SCRIPT)
     for pt_min, pt_max, bkg_max in zip(pt_mins, pt_maxs, bkg_maxs):
         logger(f"Processing pT bin {pt_min} - {pt_max} with bkg max {bkg_max}", level='INFO', script=SCRIPT)
         # Create output file

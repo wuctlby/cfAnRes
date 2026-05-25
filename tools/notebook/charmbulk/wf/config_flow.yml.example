@@ -43,7 +43,8 @@ cut_variation:
 
 # ── Projection configuration ───────────────────────────────
 projections:
-    # Invariant mass bin edges per pT bin
+    # Extra variables to project (in addition to "Mass" which is always included)
+    ProjVars: []  # e.g. ["Sp", "Cent"]
     inv_mass_bins:
         - [1.72, 1.78, 1.84, 1.90, 1.96, 2.02]
         - [1.72, 1.78, 1.84, 1.90, 1.96, 2.02]

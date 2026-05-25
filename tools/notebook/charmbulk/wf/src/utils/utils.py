@@ -24,6 +24,15 @@ def _get_script_name(script_path):
         raise ValueError(f"Script path '{script_path}' not found. Available keys: {list(_SCRIPTS.values())}")
     return f"[{next(key for key, value in _SCRIPTS.items() if value == script_path)}]"
 
+def make_dir_root_file(directory, file, verbose=True):
+    if not file.GetDirectory(directory):
+        file.mkdir(directory)
+        if verbose:
+            logger(f"Created directory {directory} in file {file.GetName()}", level='WARNING')
+    else:
+        if verbose:
+            logger(f"Directory {directory} already exists in file {file.GetName()}", level='WARNING')
+
 def check_dir(dir_path, clean=True, script=None):
     if os.path.exists(dir_path):
         if clean:
@@ -310,5 +319,83 @@ def get_centrality_bins(centrality):
     elif centrality == 'k0100':
         return '0_100', [0, 100]
     else:
-        print(f"ERROR: cent class \'{centrality}\' is not supported! Exit")
+        print(f"ERROR: cent class \\'{centrality}\\' is not supported! Exit")
     sys.exit()
+
+
+# ── histogram reweighting helpers ─────────────────────────────────────────────
+
+def reweight_histo_1D(hist, spline, binned=False):
+    """Reweight a 1‑D histogram using a spline or binned weights."""
+    if binned:
+        for i in range(1, hist.GetNbinsX() + 1):
+            hist.SetBinContent(i, hist.GetBinContent(i) * spline.GetBinContent(i))
+        return hist
+    for i in range(1, hist.GetNbinsX() + 1):
+        pt = hist.GetBinCenter(i)
+        w = spline(pt)
+        hist.SetBinContent(i, hist.GetBinContent(i) * w)
+    return hist
+
+
+def reweight_histo_2D(hist, spline, binned=False):
+    """Reweight a 2‑D histogram using a spline or binned weights on the X axis."""
+    for i in range(1, hist.GetNbinsX() + 1):
+        pt = hist.GetXaxis().GetBinCenter(i)
+        w = spline(pt) if not binned else spline.GetBinContent(i)
+        for j in range(1, hist.GetNbinsY() + 1):
+            hist.SetBinContent(i, j, hist.GetBinContent(i, j) * w)
+    return hist
+
+
+def reweight_histo_3D(hist, spline, species_weights):
+    """Reweight a 3‑D histogram with a spline and per‑species weights."""
+    for i in range(1, hist.GetNbinsX() + 1):
+        pt = hist.GetXaxis().GetBinCenter(i)
+        w_pt = spline(pt)
+        for j in range(1, hist.GetNbinsY() + 1):
+            for k in range(1, hist.GetNbinsZ() + 1):
+                w_species = species_weights[j - 1]  # simplified; adjust as needed
+                hist.SetBinContent(i, j, k, hist.GetBinContent(i, j, k) * w_pt * w_species)
+    return hist
+
+
+# ── vn vs mass helpers ────────────────────────────────────────────────────────
+
+def get_vn_versus_mass(sparse, mass_bins, mass_axis, sp_axis):
+    """Compute vn vs invariant mass from a THnSparse (scalar‑product method)."""
+    import ROOT, array
+    hist = ROOT.TH1F("hVnVsMass", ";#it{m}_{inv} (GeV/#it{c}^{2});#it{v}_{2}",
+                     len(mass_bins) - 1, array.array("d", mass_bins))
+    for i_bin in range(1, hist.GetNbinsX() + 1):
+        m_low = mass_bins[i_bin - 1]
+        m_high = mass_bins[i_bin]
+        sparse.GetAxis(mass_axis).SetRangeUser(m_low, m_high)
+        hsp = sparse.Projection(sp_axis)
+        if hsp.Integral() > 0:
+            vn = hsp.GetMean()
+            err = hsp.GetMeanError()
+        else:
+            vn = err = 0
+        hist.SetBinContent(i_bin, vn)
+        hist.SetBinError(i_bin, err)
+    return hist
+
+
+def profile_mass_sp(sparse, mass_bins, resolution=1.0):
+    """Profile (Sp) as a function of mass, used for multitrial systematics."""
+    import ROOT, array
+    hist = ROOT.TProfile("hVnVsMass", ";#it{m}_{inv} (GeV/#it{c}^{2});#it{v}_{2}",
+                         len(mass_bins) - 1, array.array("d", mass_bins))
+    for i_bin in range(1, hist.GetNbinsX() + 1):
+        m_low = mass_bins[i_bin - 1]
+        m_high = mass_bins[i_bin]
+        sparse.GetAxis(0).SetRangeUser(m_low, m_high)
+        hsp = sparse.Projection(1)
+        if hsp.Integral() > 0:
+            mean = hsp.GetMean() / resolution
+            err = hsp.GetMeanError() / resolution
+        else:
+            mean = err = 0
+        hist.Fill((m_low + m_high) / 2, mean)
+    return hist
