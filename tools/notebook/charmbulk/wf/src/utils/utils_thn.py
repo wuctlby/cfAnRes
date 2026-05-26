@@ -3,59 +3,74 @@ from __future__ import annotations
 import os
 import re
 from dataclasses import dataclass, field
+import string
 
 import yaml
 
 
 # ── common physics aliases for THnSparse axes ─────────────────────────────────
 _COMMON_AXIS_ALIASES: dict[str, list[str]] = {
-    'inv. mass':
+    'Mass':
         ['mass', 'm', 'invmass', 'invariant mass', 'inv_mass', 'minv'],
 
-    'centrality':
-        ['cent', 'c', 'central'],
+    'Centrality':
+        ['cent', 'c', 'central', 'centrality'],
 
-    'pt':
-        ['pt', 'p_t', 'transverse momentum', 'mom', 'p_t'],
+    'Pt':
+        ['pt', 'p_t', 'transverse momentum', 'p_t'],
 
-    'sign':
-        ['charge', 'q'],
+    'PtBMoth':
+        ['pt_bmother', 'pt_bm', 'pt_b'],
 
-    'bkg score':
+    'Sign':
+        ['charge'],
+
+    'Origin':
+        ['origin', 'orig'],
+
+    'ScoreBkg':
         ['bkg', 'background', 'bkgscore'],
 
-    'fd score':
+    'ScoreFD':
         ['fd', 'fdscore', 'fd_score'],
 
-    'eta':
+    'Eta':
         ['pseudorapidity'],
 
-    'mean pt a':
+    'Y':
+        ['rapidity', 'rap'],
+
+    'MeanPtA':
         ['mpt_a', 'meanpt_a', 'ptbar_a', '<pt>_a'],
 
-    'mean pt b':
+    'MeanPtB':
         ['mpt_b', 'meanpt_b', 'ptbar_b', '<pt>_b'],
 
-    'pt product':
+    'PtProduct':
         ['product', 'cb_product', 'ptcand_mpt'],
 
-    'mean pt product':
+    'MeanPtProduct':
         ['meanpt_product', 'mm_product'],
 
-    'n tracks a':
+    'NTracksA':
         ['ntrk_a', 'ntracks_a', 'mult_a', 'n_a', 'num_a'],
 
-    'n tracks b':
+    'NTracksB':
         ['ntrk_b', 'ntracks_b', 'mult_b', 'n_b', 'num_b'],
 }
 
 def _norm(s: str) -> str:
     """Normalise punctuation for fuzzy matching.
+    1. Lowercase
+    2. Remove common punctuation
+    3. Remove all whitespace
+    4. Strip leading/trailing spaces
+        "  pT (GeV/c) "  →  "ptgevcc"
     """
     s = s.lower()
-    s = re.sub(r'[_\-./()\[\],]', ' ', s)
-    s = re.sub(r'\s+', ' ', s)
-    return s.strip()
+    punct_re = f"[{re.escape(string.punctuation)}]"
+    s = re.sub(punct_re, '', s)
+    return re.sub(r'\s+', '', s)
 
 _ALIAS_LOOKUP: list[tuple[str, list[str]]] = [
     (_norm(key), aliases) for key, aliases in _COMMON_AXIS_ALIASES.items()
@@ -130,9 +145,9 @@ class THnSparseInfo:
                     self._alias_to_id[_norm(alias)] = i
 
         # ── pre‑axes mapping (default: identity) ──
-        self._pre_axisnames_map: dict[int, int] = {i: i for i in self.axisids}
-        self._full_axisnames: list[str] = self.axisnames
-        self._full_axisids: list[int] = self.axisids
+        self._pre_axisids_map: dict[int, int] = {i: i for i in self.axisids}
+        self._orig_axisnames: list[str] = self.axisnames
+        self._orig_axisids: list[int] = self.axisids
 
     def axis_id(self, name: str) -> int | None:
         """Return the axis index (position in current axes list) for *name* (or alias).
@@ -154,17 +169,21 @@ class THnSparseInfo:
     # ── pre‑axes mapping ────────────────────────────────────────────────────
 
     def pre_axis_id(self, name: str) -> int:
-        """Return the **original** axis index from the full axis set."""
+        """Return the **original** axis index from the original axis set.
+            the ids of the pre-axes
+        """
         seq_idx = self.axis_id(name)
         if seq_idx is None:
             raise KeyError(f"Axis '{name}' not found")
-        return self._pre_axisnames_map.get(seq_idx, seq_idx)
+        return self._pre_axisids_map.get(seq_idx, seq_idx)
 
     def pre_axis_name(self, idx: int) -> str:
-        """Return the **original** axis name from the full axis set."""
-        orig_id = self._pre_axisnames_map.get(idx, idx)
-        if orig_id < len(self._full_axisnames):
-            return self._full_axisnames[orig_id]
+        """Return the **original** axis name from the original axis set.
+            the names of the pre-axes
+        """
+        orig_id = self._pre_axisids_map.get(idx, idx)
+        if orig_id < len(self._orig_axisnames):
+            return self._orig_axisnames[orig_id]
         return self.axisnames[idx]
 
     # ── name → id dictionary ───────────────────────────────────────────────
@@ -193,17 +212,18 @@ def _load_meta(meta_file: str | None = None) -> dict:
         return yaml.safe_load(f)
 
 
-def _build_thinfo(method_name: str, thn_def: dict, pre: bool = False) -> THnSparseInfo:
+def _build_thinfo(thn_key: str, thn_def: dict, pre: bool = False) -> THnSparseInfo:
     """Construct a :class:`THnSparseInfo` from a single META.yaml method entry."""
     axesdef = thn_def['axes']
-    thpath = thn_def.get('thpath', '')
+    thpath = thn_def.get('thpath')
     thname = thn_def['thname']
     datatype = thn_def.get('datatype', 'DATA')
-    aliname = thn_def.get('aliname', '')
+    aliname = thn_def.get('aliname')
     cand = _ensure_cand_list(thn_def.get('cand', []))
 
-    full_axisnames = [ax['name'] for ax in axesdef]
-    full_axisids = [ax['id'] for ax in axesdef]
+    Orig_axisnames = [ax['name'] for ax in axesdef]
+    Orig_axisids = [ax['id'] for ax in axesdef]
+    Orig_axisname_to_id = {ax['name']: ax['id'] for ax in axesdef}
 
     pre_axisids = thn_def.get('pre_axisids', None)
     pre_thname = thn_def.get('pre_thname', None)
@@ -216,20 +236,20 @@ def _build_thinfo(method_name: str, thn_def: dict, pre: bool = False) -> THnSpar
         thpath = pre_thpath
 
     if pre and pre_axisids is not None:
-        ax_by_id = {ax['id']: ax for ax in axesdef}
-        ordered_axes = [ax_by_id[aid] for aid in pre_axisids]
-        axisnames = [ax['name'] for ax in ordered_axes]
-        axisids = list(range(len(ordered_axes)))
-        _pre_axisnames_map: dict[int, int] = {
+        ax_name_by_id = {ax['id']: ax for ax in axesdef}
+        ordered_axis_names = [ax_name_by_id[aid] for aid in pre_axisids]
+        axisnames = [ax['name'] for ax in ordered_axis_names]
+        axisids = list(range(len(axisnames)))
+        _pre_axisids_map: dict[int, int] = {
             new_idx: orig_id for new_idx, orig_id in enumerate(pre_axisids)
         }
     else:
-        axisnames = full_axisnames
-        axisids = full_axisids
-        _pre_axisnames_map = {i: i for i in range(len(axisnames))}
+        axisnames = Orig_axisnames
+        axisids = Orig_axisids
+        _pre_axisids_map = {i: i for i in range(len(axisnames))}
 
     info = THnSparseInfo(
-        name=thn_def.get('name', method_name),
+        name=thn_def.get('name'),
         aliname=aliname,
         cand=cand,
         thname=thname,
@@ -239,12 +259,12 @@ def _build_thinfo(method_name: str, thn_def: dict, pre: bool = False) -> THnSpar
         axisids=axisids,
         datatype=datatype,
         axisids_kept=pre_axisids,
-        pre_thname=pre_thname or '',
-        pre_thpath=pre_thpath or '',
+        pre_thname=pre_thname,
+        pre_thpath=pre_thpath,
     )
-    info._pre_axisnames_map = _pre_axisnames_map
-    info._full_axisnames = full_axisnames
-    info._full_axisids = full_axisids
+    info._pre_axisids_map = _pre_axisids_map
+    info._orig_axisnames = Orig_axisnames
+    info._orig_axisids = Orig_axisids
     return info
 
 
@@ -256,30 +276,25 @@ _CAND_ALIASES: dict[str, str] = {
     'dzero': 'D0',
     '421': 'D0',
     # D⁺  — PDG 411
-    # 'dplus': 'D⁺',
-    # 'd+': 'D⁺',
-    # '411': 'D⁺',
+    'dplus': 'D+',
+    'd+': 'D+',
+    '411': 'D+',
     # Dₛ⁺ — PDG 431
-    # 'ds': 'Dₛ⁺',
-    # 'ds+': 'Dₛ⁺',
-    # '431': 'Dₛ⁺',
+    'ds': 'Ds+',
+    'ds+': 'Ds+',
+    '431': 'Ds+',
 }
 
-def _norm_cand(s: str) -> str:
+def _get_norm_cand(s: str) -> str:
     """Normalise a species (cand) string for comparison.
-
-    Handles case‑insensitive matching and PDG MC particle IDs::
-
-        'D0', 'd0', 'Dzero', '421'  →  all match ``cand='D0'``
+    Handles case-insensitive matching and PDG MC particle IDs::
+    'D0', 'd0', 'Dzero', '421'  →  all match ``cand='D0'``
     """
     return _CAND_ALIASES.get(s.strip().lower(), s.strip().lower())
 
 
 def _ensure_cand_list(raw: str | list[str]) -> list[str]:
     """Normalise the ``cand`` YAML field to a list of strings.
-
-    Handles backward compatibility with the old single‑string format::
-
         ``cand: "D0"``  →  ``["D0"]``
         ``cand: []``    →  ``[]``
         ``cand: ["D0", "D+"]``  →  unchanged
@@ -303,9 +318,9 @@ class GetTHnInfo:
         print(GetTHnInfo.list_thns())   # ['charm_bulk', 'bulk', ...]
     """
 
-    _meta: dict | None = None
-    _meta_file: str | None = None
-    _name_to_key: dict[str, str] | None = None
+    _meta: dict | None = None # META.yaml content cache
+    _meta_file: str | None = None # Optional override path for META.yaml
+    _name_to_thn_key: dict[str, str] | None = None # Mapping from thn (key + aliases) to thn key
 
     @classmethod
     def _ensure_loaded(cls) -> None:
@@ -313,11 +328,11 @@ class GetTHnInfo:
         if cls._meta is None:
             cls._meta = _load_meta(cls._meta_file)
             alias_map: dict[str, str] = {}
-            for key, thn_def in cls._meta.get('thns', {}).items():
-                alias_map[key] = key
+            for thn_key, thn_def in cls._meta.get('thns', {}).items():
+                alias_map[thn_key] = thn_key # thn_key itself is a valid name
                 for alias in thn_def.get('aliname', []):
-                    alias_map[alias] = key
-            cls._name_to_key = alias_map
+                    alias_map[alias] = thn_key # alias → thn_key mapping for lookup
+            cls._name_to_thn_key = alias_map
 
     @classmethod
     def configure(cls, meta_file: str | None = None) -> None:
@@ -332,14 +347,12 @@ class GetTHnInfo:
         Parameters
         ----------
         name :
-            Method key in the YAML ``thns:`` section, or any entry in the
-            method's ``aliname`` list.
+            Thn key or alias
         pre :
-            If *True*, only axes listed in ``pre_axisids`` are kept and
-            re‑indexed sequentially.
+            If *True*, axes ``id`` and ``name`` are remapped according to predefined ``pre-axes``,
+            id is the order of ``pre-axes`` and ``pre_thname`` / ``pre_thpath`` are used if defined.
         cand :
-            If given (non‑empty), only return the method if one of its
-            ``cand`` list entries matches (after normalisation).
+            If given, only return the thn if its ``cand`` list matches (after normalisation).
             Supports various names for the same species:
             ``'D0'``, ``'d0'``, ``'Dzero'``, ``'421'`` are all equivalent.
 
@@ -348,26 +361,26 @@ class GetTHnInfo:
         """
         cls._ensure_loaded()
         assert cls._meta is not None
-        assert cls._name_to_key is not None
+        assert cls._name_to_thn_key is not None
 
-        key = cls._name_to_key.get(name)
-        if key is None:
+        thn_key = cls._name_to_thn_key.get(name)
+        if thn_key is None:
             raise KeyError(
                 f"Unknown THnSparse method {name!r}. "
-                f"Available: {list(cls._name_to_key)}"
+                f"Available: {list(cls._name_to_thn_key)}"
             )
-        thn_def = cls._meta['thns'][key]
+        thn_def = cls._meta['thns'][thn_key]
 
         if cand:
-            method_cand_list = _ensure_cand_list(thn_def.get('cand', []))
-            normed = _norm_cand(cand)
-            if not any(_norm_cand(c) == normed for c in method_cand_list):
+            thn_cand_list = _ensure_cand_list(thn_def.get('cand', []))
+            normed_cand = _get_norm_cand(cand)
+            if not any(_get_norm_cand(c) == normed_cand for c in thn_cand_list):
                 raise KeyError(
-                    f"THnSparse method {name!r} (→ '{key}') has cand={method_cand_list!r}, "
+                    f"THnSparse method {name!r} (→ '{thn_key}') has cand={thn_cand_list!r}, "
                     f"does not match requested cand={cand!r}"
                 )
 
-        return _build_thinfo(key, thn_def, pre=pre)
+        return _build_thinfo(thn_key, thn_def, pre=pre)
 
     @classmethod
     def list_thns(cls) -> list[str]:
@@ -388,19 +401,3 @@ class GetTHnInfo:
                 raise RuntimeError("META.yaml defines no methods.")
             default_name = thns[0]
         return cls.thn(default_name)
-
-    @classmethod
-    def charm_bulk(cls) -> THnSparseInfo:
-        return cls.thn('charm_bulk')
-
-    @classmethod
-    def CharmBulk(cls) -> THnSparseInfo:
-        return cls.thn('charm_bulk')
-
-    @classmethod
-    def bulk(cls) -> THnSparseInfo:
-        return cls.thn('bulk')
-
-    @classmethod
-    def Bulk(cls) -> THnSparseInfo:
-        return cls.thn('bulk')
