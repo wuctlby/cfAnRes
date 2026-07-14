@@ -1,0 +1,4 @@
+log_url: https://alimonitor.cern.ch/train-workdir/tests/0071/00713501/
+task_path: /home/wuct/MetaData/MC/production/ppref/charm_baryon/d8
+download_test_AO2D: True
+download_parent_AOD: True
