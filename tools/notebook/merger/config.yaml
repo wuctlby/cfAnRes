@@ -1,0 +1,98 @@
+defaults:
+  input_type: png                 # png | pdf
+  sort: natsort                   # natsort | name | mtime | none
+  exclude: "merged"               # glob 匹配后排除含此字符串的文件
+  dpi: 400                        # PDF 提取分辨率
+
+tasks:
+  LMFits_PtCand:
+    type: chunked
+    input:
+      globs:
+        - /home/wuct/MetaData/DATA/OO/apass2/corr/results/fifth/k020_gausPer/etaVariation/CorrelExtract_0d2_1d3_AppDeltaPhi/CorrelationFitResults/LMSysResults/LMSys/LMFits_PtCand*.png
+      exclude: "merged"
+      sort: natsort
+    output:
+      dir: "/home/wuct/MetaData/DATA/OO/apass2/corr/results/fifth/k020_gausPer/etaVariation/CorrelExtract_0d2_1d3_AppDeltaPhi/CorrelationFitResults/LMSysResults/LMSys/merged"
+      name_template: "merged_merged_LMFits_PtCand_{idx:03d}.png"   # 可用变量: {idx} {start} {end} {total}
+    chunk_size: 4
+    canvas:
+      width: 3640
+      height: 2160
+    cols: 2                     # null = 自动按 16:9 估算列数
+    margins: 1.0
+
+  ParProb:
+    type: composite
+    align: strict                  # strict = 等长（报错） | shortest = 按最短组截断
+    groups:
+      - name: "column_c"
+        input:
+          globs:
+            - "/home/wuct/MetaData/DATA/OO/apass2/corr/results/fifth/k020_gausPer/etaVariation/CorrelExtract_0d2_1d3_AppDeltaPhi/CorrelationFitResults/LMSysResults/LMSys/ParProb_Baseline_PtCand*.png"
+          exclude: "merged"
+          sort: natsort
+      - name: "column_a"
+        input:
+          globs:
+            - "/home/wuct/MetaData/DATA/OO/apass2/corr/results/fifth/k020_gausPer/etaVariation/CorrelExtract_0d2_1d3_AppDeltaPhi/CorrelationFitResults/LMSysResults/LMSys/ParProb_Amplitude_AS_PtCand*.png"
+          exclude: "merged"
+          sort: natsort
+      - name: "column_b"
+        input:
+          globs:
+            - "/home/wuct/MetaData/DATA/OO/apass2/corr/results/fifth/k020_gausPer/etaVariation/CorrelExtract_0d2_1d3_AppDeltaPhi/CorrelationFitResults/LMSysResults/LMSys/ParProb_Amplitude_NS_PtCand*.png"
+          exclude: "merged"
+          sort: natsort
+      - name: "column_d"
+        input:
+          globs:
+            - "/home/wuct/MetaData/DATA/OO/apass2/corr/results/fifth/k020_gausPer/etaVariation/CorrelExtract_0d2_1d3_AppDeltaPhi/CorrelationFitResults/LMSysResults/LMSys/ParProb_Sigma_AS_PtCand*.png"
+          exclude: "merged"
+          sort: natsort
+      - name: "column_e"
+        input:
+          globs:
+            - "/home/wuct/MetaData/DATA/OO/apass2/corr/results/fifth/k020_gausPer/etaVariation/CorrelExtract_0d2_1d3_AppDeltaPhi/CorrelationFitResults/LMSysResults/LMSys/ParProb_Sigma_NS_PtCand*.png"
+          exclude: "merged"
+          sort: natsort
+    output:
+      dir: "/home/wuct/MetaData/DATA/OO/apass2/corr/results/fifth/k020_gausPer/etaVariation/CorrelExtract_0d2_1d3_AppDeltaPhi/CorrelationFitResults/LMSysResults/LMSys/merged/"
+      name_template: "composite_row_{idx:03d}.png"
+    canvas:
+      width: 3600
+      height: 1800
+    cols: 3                        # = group 数量（排成一行）
+    margins: 0
+
+  hProbV2_PtCand:
+    type: chunked
+    input:
+      globs:
+        - /home/wuct/MetaData/DATA/OO/apass2/corr/results/fifth/k020_gausPer/etaVariation/CorrelExtract_0d2_1d3_AppDeltaPhi/CorrelationFitResults/LMSysResults/hProbV2_PtCand*.png
+      exclude: "merged"
+      sort: natsort
+    chunk_size: 4
+    output:
+      dir: /home/wuct/MetaData/DATA/OO/apass2/corr/results/fifth/k020_gausPer/etaVariation/CorrelExtract_0d2_1d3_AppDeltaPhi/CorrelationFitResults/LMSysResults/LMSys/merged
+      name_template: merged_hProbV2_PtCand_{idx:03d}.png
+    canvas:
+      width: 2800
+      height: 2160
+    cols: 2                     # null = 自动按 16:9 估算列数
+    margins: 1.0
+
+  probV2_PtCand:
+    type: simple
+    input:
+      globs:
+        - /home/wuct/MetaData/DATA/OO/apass2/corr/results/fifth/k020_gausPer/etaVariation/CorrelExtract_0d2_1d3_AppDeltaPhi/CorrelationFitResults/LMSysResults/probV2_PtCand*.png
+      exclude: "merged"
+      sort: natsort
+    output:
+      path: /home/wuct/MetaData/DATA/OO/apass2/corr/results/fifth/k020_gausPer/etaVariation/CorrelExtract_0d2_1d3_AppDeltaPhi/CorrelationFitResults/LMSysResults/LMSys/merged/merged_probV2_PtCand.png
+    canvas:
+      width: 3640
+      height: 2160
+    cols: 4                     # null = 自动按 16:9 估算列数
+    margins: 1.0

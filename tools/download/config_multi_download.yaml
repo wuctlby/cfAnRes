@@ -5,6 +5,8 @@ META_CONFIG: &META_CONFIG
   ForceStage: True # in case files are not merged properly, force downloading staged files
   FileName: AnalysisResults.root
   RunNumMatch: False # if True, save files in subdirectories named by run number, e.g. LocalPath/RunNum/iFile/FileName
+  sample: 3 # sample files to download with a gap of N
+  allowance: 200 # number of files to keep between each sampled file, -1 means include all files
   RunList: [
   ]
   # AnalysisResults.root
@@ -19,54 +21,80 @@ AO: &AO
 AA: &AA
   FileName: AA
 
-# tasks
-task1:
-  <<: *META_CONFIG
-  <<: *AA # *AR or *AO or *AA
-  AlienOutputDirs: [
-    /alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476493/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476492/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476491/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476490/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476489/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476488/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476487/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476486/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476485/AOD
-  ]
-  RunNumMatch: True
-  RunList: [
-    564445,564430,564414,564400,564387,564374,564373,564359,564356
-  ]
-  LocalPath: /home/wuct/MetaData/DATA/OO/apass2/corr/fifth/SE/k020
+# task1:
+#   <<: *META_CONFIG
+#   <<: *AR
+#   AlienOutputDirs: [
+#     /alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132286,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132285,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132284,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132283,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132282,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132281,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132280,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132279,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132278,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132277,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132276,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132275,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132274,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132273,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132272,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132271,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132270,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132269,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132268,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132267,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132266,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132265,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132264,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132263,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132262,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132261,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132260,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132259,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132258,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132257,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132256,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132255,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132254,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132253,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132252,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132251,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132250,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132249,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132248,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132247,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132246,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132245,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132244,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132243,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132242,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132241,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132240,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132239,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132238,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132237,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132236,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132235,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132234,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132233,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132232,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132231,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132230,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132229,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132228,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132227,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132226,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132225,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132224,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132223,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132222,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132221,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132220,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132219,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132218,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132217,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132216,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132215,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132214,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132213,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132212,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132211,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132210,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132209,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132208,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132207,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132206,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132205,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132204,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132203,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132202,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132201,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132200,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132199,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132198,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132197,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132196,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132195,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132194,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5132193,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5131969,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5131968,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5131967,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5131966,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5131965,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5131964,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5131963,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5131962,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5131961,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5131960,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5131959,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5131958,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5131957,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5131956,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5131955,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5131954,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5131953,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5131952,/alice/cern.ch/user/a/alihyperloop/jobs/0513/hy_5131951
+#   ]
+#   RunNumMatch: True
+#   RunList: [
+#     545367,545345,545332,545312,545311,545296,545295,545294,545291,545289,545262,545249,545246,545223,545222,545210,545185,545184,545171,545117,545103,545086,545066,545064,545063,545062,545060,545047,545044,545042,545041,545009,545008,545004,544992,544991,544968,544964,544963,544961,544947,544931,544917,544914,544913,544911,544896,544887,544886,544868,544813,544797,544795,544794,544767,544754,544742,544739,544696,544694,544693,544692,544674,544672,544653,544652,544640,544614,544585,544583,544582,544580,544568,544567,544565,544564,544551,544550,544549,544548,544518,544515,544514,544512,544511,544510,544508,544492,544491,544490,544477,544476,544475,544474,544454,544451,544392,544391,544390,544389,544185,544184,544124,544123,544122,544121,544116,544098,544095,544091,544032,544028,544013
+#   ]
+#   ForceStage: True
+#   LocalPath: /home/wuct/MetaData/DATA/PbPb/2023/pass4/charmbulk/flook_full/mc
 
 task2:
   <<: *META_CONFIG
-  <<: *AA # *AR or *AO or *AA
+  <<: *AR
   AlienOutputDirs: [
-    /alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476563/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476562/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476561/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476560/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476559/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476558/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476557/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476556/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476555/AOD
+    /alice/cern.ch/user/a/alihyperloop/jobs/0526/hy_5264208,/alice/cern.ch/user/a/alihyperloop/jobs/0526/hy_5264207,/alice/cern.ch/user/a/alihyperloop/jobs/0526/hy_5264206,/alice/cern.ch/user/a/alihyperloop/jobs/0526/hy_5264205,/alice/cern.ch/user/a/alihyperloop/jobs/0526/hy_5264204,/alice/cern.ch/user/a/alihyperloop/jobs/0526/hy_5264203,/alice/cern.ch/user/a/alihyperloop/jobs/0526/hy_5264202,/alice/cern.ch/user/a/alihyperloop/jobs/0526/hy_5264201,/alice/cern.ch/user/a/alihyperloop/jobs/0526/hy_5264200,/alice/cern.ch/user/a/alihyperloop/jobs/0526/hy_5264199,/alice/cern.ch/user/a/alihyperloop/jobs/0526/hy_5264198,/alice/cern.ch/user/a/alihyperloop/jobs/0526/hy_5264197,/alice/cern.ch/user/a/alihyperloop/jobs/0526/hy_5264196,/alice/cern.ch/user/a/alihyperloop/jobs/0526/hy_5264195
   ]
   RunNumMatch: True
   RunList: [
-    564445,564430,564414,564400,564387,564374,564373,564359,564356
+    544947,544767,544739,544672,544652,544640,544614,544564,544548,544508,544490,544474,544123,544116
   ]
-  LocalPath: /home/wuct/MetaData/DATA/OO/apass2/corr/fifth/SE/k20100
+  ForceStage: False
+  LocalPath: /home/wuct/MetaData/MC/production/PbPb/test_apass4/k4b
 
-task3:
-  <<: *META_CONFIG
-  <<: *AA # *AR or *AO or *AA
-  AlienOutputDirs: [
-    /alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476484/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476483/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476482/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476481/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476480/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476306/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476305/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476304/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476303/AOD
-  ]
-  RunNumMatch: True
-  RunList: [
-    564445,564430,564414,564400,564387,564374,564373,564359,564356
-  ]
-  LocalPath: /home/wuct/MetaData/DATA/OO/apass2/corr/fifth/ME/k020
+# # tasks
+# task1:
+#   <<: *META_CONFIG
+#   <<: *AA # *AR or *AO or *AA
+#   AlienOutputDirs: [
+#     /alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476493/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476492/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476491/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476490/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476489/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476488/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476487/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476486/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476485/AOD
+#   ]
+#   RunNumMatch: True
+#   RunList: [
+#     564445,564430,564414,564400,564387,564374,564373,564359,564356
+#   ]
+#   LocalPath: /home/wuct/MetaData/DATA/OO/apass2/corr/fifth/SE/k020
 
-task4:
-  <<: *META_CONFIG
-  <<: *AA # *AR or *AO or *AA
-  AlienOutputDirs: [
-    /alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476554/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476553/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476500/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476499/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476498/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476497/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476496/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476495/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476494/AOD
-  ]
-  RunNumMatch: True
-  RunList: [
-    564445,564430,564414,564400,564387,564374,564373,564359,564356
-  ]
-  LocalPath: /home/wuct/MetaData/DATA/OO/apass2/corr/fifth/ME/k20100
+# task2:
+#   <<: *META_CONFIG
+#   <<: *AA # *AR or *AO or *AA
+#   AlienOutputDirs: [
+#     /alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476563/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476562/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476561/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476560/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476559/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476558/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476557/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476556/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476555/AOD
+#   ]
+#   RunNumMatch: True
+#   RunList: [
+#     564445,564430,564414,564400,564387,564374,564373,564359,564356
+#   ]
+#   LocalPath: /home/wuct/MetaData/DATA/OO/apass2/corr/fifth/SE/k20100
+
+# task3:
+#   <<: *META_CONFIG
+#   <<: *AA # *AR or *AO or *AA
+#   AlienOutputDirs: [
+#     /alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476484/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476483/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476482/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476481/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476480/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476306/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476305/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476304/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476303/AOD
+#   ]
+#   RunNumMatch: True
+#   RunList: [
+#     564445,564430,564414,564400,564387,564374,564373,564359,564356
+#   ]
+#   LocalPath: /home/wuct/MetaData/DATA/OO/apass2/corr/fifth/ME/k020
+
+# task4:
+#   <<: *META_CONFIG
+#   <<: *AA # *AR or *AO or *AA
+#   AlienOutputDirs: [
+#     /alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476554/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476553/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476500/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476499/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476498/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476497/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476496/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476495/AOD,/alice/cern.ch/user/a/alihyperloop/jobs/0447/hy_4476494/AOD
+#   ]
+#   RunNumMatch: True
+#   RunList: [
+#     564445,564430,564414,564400,564387,564374,564373,564359,564356
+#   ]
+#   LocalPath: /home/wuct/MetaData/DATA/OO/apass2/corr/fifth/ME/k20100
 
 # task1: &task1
 #   <<: *META_CONFIG

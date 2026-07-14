@@ -1,0 +1,16 @@
+name: alice
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - root=6.34.4
+  - pypdf
+  - pymupdf
+  - pdf2image
+  - uproot
+  - rapidjson
+  - pypdf2
+  - yaml-cpp
+  - polars
+  - handcalcs
+prefix: /home/wuct/Software/miniforge3/envs/alice

@@ -1,0 +1,173 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Merger 拼图工具 — 示例配置
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# 用法:
+#   python run.py config.yaml            # 执行全部 task
+#   python run.py config.yaml --task T1  # 执行指定 task
+#   python run.py config.yaml --dry-run  # 干跑：只列出将执行的操作
+#   python run.py config.yaml --list     # 列出所有 task
+#
+# 支持 5 种 task 类型:
+#   simple     — 收集文件 → 拼成一张图
+#   chunked    — 收集文件 → 分块 → 每块拼一张
+#   page_group — 多个 PDF → 按页码分组 → 每组拼一张
+#   composite  — N 组文件按行对齐，每行拼一张
+#   nested     — 子组各自拼图 → 再拼成大图
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# ── 全局默认值（每个 task 可以单独覆盖） ──
+defaults:
+  input_type: png                 # png | pdf
+  sort: natsort                   # natsort | name | mtime | none
+  exclude: "merged"               # glob 匹配后排除含此字符串的文件
+  dpi: 400                        # PDF 提取分辨率
+
+# ── 任务列表（dict 格式：key=task name, value=task 配置） ──
+tasks:
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # 类型 1: simple — 所有匹配文件拼成一张图
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  simple_demo:
+    type: simple
+    desc: "把一个目录下所有 PNG 拼成一张大图"
+    input:
+      globs:
+        - "/path/to/images/*.png"
+      exclude: "merged"
+      sort: natsort
+    output:
+      path: "/path/to/output/collage.png"
+    canvas:
+      width: 1920
+      height: 1080
+    cols: null                     # null = 自动按 16:9 估算列数 | 设数字 = 指定列数
+    margins: 2.0
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # 类型 2: chunked — 文件分组，每组拼一张
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  chunked_demo:
+    type: chunked
+    desc: "每 8 张图拼成一张"
+    input:
+      globs:
+        - "/path/to/images/*.png"
+      exclude: "merged"
+      sort: natsort
+    output:
+      dir: "/path/to/output/"
+      name_template: "merged_{start}_{end}.png"   # 可用变量: {idx} {start} {end} {total}
+    chunk_size: 8
+    canvas:
+      width: 3600
+      height: 1400
+    cols: 4
+    margins: 0
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # 类型 3: page_group — 多个多页 PDF，按页码分组拼图
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  page_group_demo:
+    type: page_group
+    desc: "3 个 PDF 各 N 页 → 出 N 张 PNG，每张是 PDF 同页码页面的拼合"
+    input:
+      pdfs:
+        - "/path/to/file1.pdf"
+        - "/path/to/file2.pdf"
+        - "/path/to/file3.pdf"
+      dpi: 800                     # PDF 渲染清晰度
+    output:
+      dir: "/path/to/output/"
+      name_template: "page_{idx:03d}.png"
+    canvas:
+      width: 3600
+      height: 1000
+    cols: 3                        # 列数 = PDF 数量
+    margins: 1.0
+    keep_temp: false               # 是否保留中间提取的单页 PNG
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # 类型 4: composite — N 组文件按行对齐拼图
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  composite_demo:
+    type: composite
+    desc: "三组图，按顺序各取一张，拼成一行（类似 CorrPhiD0 + hLMtemplate 配对的泛化）"
+    align: strict                  # strict = 等长（报错） | shortest = 按最短组截断
+    groups:
+      - name: "group_a"
+        input:
+          globs:
+            - "/path/to/group_a/*.png"
+          exclude: "merged"
+          sort: natsort
+      - name: "group_b"
+        input:
+          globs:
+            - "/path/to/group_b/*.png"
+          exclude: "merged"
+          sort: natsort
+      - name: "group_c"
+        input:
+          globs:
+            - "/path/to/group_c/*.png"
+          exclude: "merged"
+          sort: natsort
+    output:
+      dir: "/path/to/output/"
+      name_template: "composite_row_{idx:03d}.png"
+    canvas:
+      width: 3600
+      height: 1000
+    cols: 3                        # 3列（不设则自动按16:9估算）
+    margins: 0
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # 类型 5: nested — 子组各自拼图后，再拼成大图
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  nested_demo:
+    type: nested
+    desc: "左右两组各自分块拼图，然后把对应的中间图拼成最终大图"
+    groups:
+      - name: "left_side"
+        input:
+          globs:
+            - "/path/to/left/*.png"
+          exclude: "merged"
+          sort: natsort
+        chunk_size: 4              # 4 张一组先拼
+        canvas:
+          width: 1800
+          height: 1400
+        cols: 2
+        margins: 0
+      - name: "right_side"
+        input:
+          globs:
+            - "/path/to/right/*.png"
+          exclude: "merged"
+          sort: natsort
+        chunk_size: 4              # 4 张一组先拼
+        canvas:
+          width: 1800
+          height: 1400
+        cols: 2
+        margins: 0
+    output:
+      dir: "/path/to/output/"
+      name_template: "final_{idx:03d}.png"
+      keep_intermediate: false     # 是否保留子组拼图
+    canvas:
+      final:
+        width: 3600
+        height: 1400
+    final_cols: 2                  # 子组结果排成 2 列
+    margins:
+      group: 0                     # 子组内部 margin
+      final: 2.0                   # 最终合并的 margin
