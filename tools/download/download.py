@@ -174,7 +174,8 @@ def download(config_source):
     sample = config.get('sample', 1)  # Default to 1 if not specified
     allowance = config.get('allowance', -1)  # Default to -1 if not specified
 
-    n_works = 24
+    n_cpu = os.cpu_count() or 16
+    n_works = min(int(n_cpu / 3), 16)
 
     if run_num_match and len(run_list) != len(alien_output_dirs):
         print("Error: RunList length does not match AlienOutputDirs length.")
@@ -198,31 +199,43 @@ def download(config_source):
                 if result:
                     alien_file_list.extend(result)
                 bar()
-                
-    # Sort and group files, sample if necessary
-    sampled_alien_file_list = []
-    for _, group in groupby(sorted(alien_file_list, key=lambda x: x[1]), key=lambda x: x[1]):
+
+    # Sort upfront by group key (x[1]) and
+    alien_file_list.sort(key=lambda x: (x[1], x[0]))
+
+    sorted_alien_file_list = []
+
+    # Calculate unique groups efficiently using set
+    n_group = len(set(x[1] for x in alien_file_list))
+
+    # Calculate base allowance per group
+    group_allowance = 0
+    if allowance > 0 and n_group > 0:
+        group_allowance = allowance // n_group
+
+    for _, group in groupby(alien_file_list, key=lambda x: x[1]):
         group_list = list(group)
-        total_files_in_run = len(group_list)
+        total_files = len(group_list)
         
         if allowance > 0:
-            # Calculate dynamic step size to evenly distribute files across the run
-            dynamic_step = max(1, total_files_in_run // allowance)
-            sampled_group = group_list[::dynamic_step]
+            # Use a local variable to avoid overwriting global allowance
+            current_allowance = min(group_allowance, total_files)
             
-            # Truncate exact allowance size (in case division remainder adds an extra file)
-            sampled_group = sampled_group[:allowance]
+            if current_allowance == 0:
+                continue
+                
+            # Distribute files evenly across the group
+            dynamic_step = max(1, total_files // current_allowance) if sample > 0 else 1
+            sampled_group = group_list[::dynamic_step][:current_allowance]
         else:
-            # Use fixed sample step if no allowance is set
+            # Use fixed step if no allowance is set
             fixed_step = sample if sample > 0 else 1
             sampled_group = group_list[::fixed_step]
             
-        sampled_alien_file_list.extend(sampled_group)
-    alien_file_list = sampled_alien_file_list
+        # Append as a sub-list directly to form the final grouped structure
+        if sampled_group:
+            sorted_alien_file_list.append(sampled_group)
 
-    sorted_alien_file_list = [
-        list(g) for _, g in groupby(sorted(alien_file_list, key=lambda x: (x[1], x[0])), key=lambda x: x[1])
-    ]
     print(f"Outputs from Alien found (Stage = {force_stage}). Total runs/jobs: {len(sorted_alien_file_list)}")
     total_size = estimate_total_size(sorted_alien_file_list)
 
